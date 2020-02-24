@@ -1,0 +1,219 @@
+= The Espresso++ Language Specification
+Giuseppe Greco <giuseppe.greco@skeeterhealth.com>
+v.0.1, 22.02.2020: First draft
+:sectnums:
+:toc:
+:toclevels: 1
+:description: Espresso++ Language Specification
+:keywords: Espresso++ Query Language
+:espressopp: Espresso++
+
+[[introduction]]
+== Introduction
+
+{espressopp} is a natural query language that abstracts away the native query language
+of any data management system. {espressopp} aims to provide API users with a powerful
+yet very simple query mechanism, that hides type and schema of the underlying database.
+Last but not least, {espressopp} is designed with security in mind to prevent any kind
+of cyber-attack like _code-injection_.
+
+The next sections describe <<syntax, syntax>> and <<grammar, grammar>> of {espressopp}
+in great detail. This article ends with some helpful <<examples, examples>> that show
+{espressopp} in action.
+
+[[syntax]]
+== Syntax
+
+_Syntax_ is how a statement is worded and structured. It is the study of the
+principles and processes by which statements are constructed in {espressopp}.
+
+The first version of {espressopp} supports logical and matching _operators_ as well as
+a number of helpful _macros_. A record is selected when the filtering expression evaluates
+to `true` -- an expression is a combination of one or more constants, fields, operators,
+and macros that {espressopp} interprets and computes to produce a native query.
+
+_Logical operators_ allow a program to make a decision based on multiple conditions.
+Each expression is considered a condition that can be evaluated to `true` or `false`.
+
+.Logical Operators
+|===
+|Operator |Usage |Description
+
+|`or`
+|*expr1* `or` *expr2*
+|Evaluates to `true` if either expression does
+
+|`and`
+|*expr1* `and` *expr2*
+|Evaluates to `true` if both expressions do
+
+|`not`
+|`not` *expr*
+|Evaluates to `true` if the expression does not
+|===
+
+_Matching operators_ allow a program to compare two expressions or determine whether an
+expression matches a given condition. Matching conditions can be evaluated to `true` or
+`false`.
+
+.Matching Operators
+|===
+|Operator |Usage |Description
+|`eq`
+|*expr1* `eq` *expr2*
+|Evaluates to `true` if two expressions are equal
+
+|`neq`
+|*expr1* `neq` *expr2*
+|Evaluates to `true` if two expressions are not equal
+
+|`is`
+|*expr* `is` `true` [or `false`]
+|Evaluates to `true` if the expression equals the right-hand side Boolean
+
+|`gt`
+|*expr1* `gt` *expr2*
+|Evaluates to `true` if the left-hand side expression is greater than the right-hand side expression
+
+|`gte`
+|*expr1* `gte` *expr2*
+|Evaluates to `true` if the left-hand side expression is greater than or equal to the right-hand side expression
+
+|`lt`
+|*expr1* `lt` *expr2*
+|Evaluates to `true` if the left-hand side expression is less than the right-hand side expression
+
+|`lte`
+|*expr1* `lte` *expr2*
+|Evaluates to `true` if the left-hand side expression is less than or equal to the right-hand side expression
+
+|`between`
+|`between` *expr1* `and` *expr2*
+|Evaluates to `true` if the expression is within the given range
+
+|`startswith`
+|`startswith` *expr*
+|Evaluates to `true` if the expression starts with the given string
+
+|`endswith`
+|`endswith` *expr*
+|Evaluates to `true` if the expression ends with the given string
+
+|`contains`
+|`contains` *expr*
+|Evaluates to `true` if the expression contains the given string
+|===
+
+_Macros_ are single instructions that expand automatically into a set of instructions.
+
+.Macros
+|===
+|Macro |Arguments |Description
+
+|`#today`
+|
+|Expands to today's date
+
+|`#now`
+|
+|Expands to current time
+
+|`#duration`
+|Duration in ISO-8601 format
+|Expands to a duration in milliseconds
+|===
+
+[[grammar]]
+== Grammar
+
+_Grammar_ is the set of structural rules that govern the composition of statements in
+{espressopp}, and *Extended Backus-Naur Form 2* (EBNF2) is the formalism (or metalanguage)
+used to describe it.
+
+```
+identifier              = . // http://golang.org/ref/spec#identifier
+int                     = . // http://golang.org/ref/spec#int_lit
+float                   = . // http://golang.org/ref/spec#float_lit
+string                  = . // http://golang.org/ref/spec#string_lit
+bool                    = "true" | "false" .
+
+Query                   = Expression { Expression } .
+
+Expression              = EquelTo
+                        | NotEqualTo
+                        | GreaterThan
+                        | GreaterThanOrEqualTo
+                        | LessThan
+                        | LessThanOrEqualTo
+                        | Between
+                        | StartsWith
+                        | EndsWith
+                        | Contains
+                        | Is
+                        | ParenExpression [ [ "and" | "or" ] ParenExpression ] .
+ParenExpression         = [ "not" ] "(" Expression ")" .
+
+Term                    = identifier | int | float | string | bool .
+NumericTerm             = identifier | int | float .
+TextualTerm             = identifier | string .
+
+EqualTo                 = Term "eq" Term .
+NotEqualTo              = Term "neq" Term .
+
+GreaterThan             = NumericTerm "gt" NumericTerm .
+GreaterThanOrEqualTo    = NumericTerm "gte" NumericTerm .
+LessThan                = NumericTerm "lt" NumericTerm .
+LessThanOrEqualTo       = NumericTerm "lte" NumericTerm .
+Between                 = NumericTerm "between" NumericTerm "and" NumericTerm .
+
+StartsWith              = TextualTerm "startswith" TextualTerm .
+EndsWith                = TextualTerm "endswith" TextualTerm .
+Contains                = TextualTerm "contains" TextualTerm .
+
+Is                      = identifier "is" [ "not" ] bool
+                        | "is" [ "not "] identifier
+                        | identifier "is" [ "not" ] "null" .
+```
+
+[[examples]]
+== Examples
+
+This article ends with some examples that show {espressopp} in action.
+
+Select the persons with surname *Walker* and name starting with *J*:
+```
+surname eq "Walker" and name startswith "J"
+```
+
+Select the persons who are between 20 and 40 years old:
+```
+age between 20 and 40
+```
+
+Select today's orders that are either not processed or bigger than 3000 items:
+```
+create_time eq #today and (status neq "processed" or size gt 3000)
+```
+
+Select the orders with at least 2000 items that have been created in the past 2 hours:
+```
+size gte 2000 and not(create_time lt #now - #duration("PT2H"))
+```
+
+Select internal orders issued by employee 110110:
+```
+employee_id eq 110110 and internal is true
+```
+Or alternatively:
+```
+employee_id eq 110110 and is internal
+```
+
+Select the orders with customer notes:
+```
+customer_note is not null
+```
+
+---
+
+*Copyright &#169; 2020 Skeeter Health*

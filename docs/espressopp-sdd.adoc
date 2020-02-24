@@ -1,0 +1,138 @@
+= Espresso++: Software Design Document
+Giuseppe Greco <giuseppe.greco@skeeterhealth.com>
+v.0.1, 23.02.2020: First draft
+:sectnums:
+:toc:
+:toclevels: 3
+:description: Espresso++ Software Design Document
+:keywords: Espresso++ Software Design
+:imagesdir: {docdir}/assets/espressopp-sdd
+:espressopp: Espresso++
+
+[[introduction]]
+== Introduction
+
+=== Purpose of the Document
+
+This document presents the design of {espressopp}, a natural query language that
+abstracts the native query language of any data management system, and the
+intended audience is anybody involved in its realization.
+
+=== Scope of the "Software Design Document"
+
+This design document applies to any Skeeter API that supports data filtering.
+
+=== Definitions, Acronyms, and Abbreviations
+
+[glossary]
+Lexer:: The part of an interpreter that attaches meaning by classifying _lexemes_
+(string of symbols from the input) as particular tokens. For example, the _lexemes_
+`or`, `and`, and `not` are classified as _logical operators_ by the {espressopp} lexer.
+Parser:: The part of an interpreter that attaches meaning by classifying strings of
+tokens from the input (sentences) as particular _non-terminals_ and by building the
+_parse tree_. For example, token strings like `[number][operator][number]` or
+`[id][operator][id]` are classified as _non-terminal expressions_ by the {espressopp} parser.
+Interpreter:: A computer program that converts each high-level statement into code or
+instructions that can be understood by the underlying system.
+Visitor Pattern:: A way of separating an algorithm from the structure on which it operates.
+The result of this separation is the ability to add new operations to existing structures
+without modifying the structure.
+
+[bibliography]
+=== References
+
+- [[[els,1]]] Giuseppe Greco. <<espressopp-spec.adoc#, The {espressopp} Language Specification>>.
+  Skeeter Health. 2020.
+
+=== Overview
+
+Skeeter APIs let clients specify a filter to limit or control the data returned by an endpoint.
+A filter consists of one or more statements written in {espressopp} <<els>> that abstracts away
+the native query language of the underlying data management system.
+
+{espressopp} comes as a module together with a command-line utility that converts input
+{espressopp} expressions into native expressions expected by the underlying data management system.
+The next sections describe what functionality {espressopp} shall provide and how that functionality
+shall be implemented.
+
+[[use-case-view]]
+== Use Case View
+
+Figure <<use-case-diagram>> shows what fuctionality {espressopp} provides and what external systems
+(actors) interact with it.
+
+[[use-case-diagram]]
+.Actors, Use Cases, and their Interactions
+image::use-case-diagram.png[Use Case Diagram]
+
+Use case _Interpret {espressopp} Script_ is started by the _Client_ when an {espressopp} expression
+is executed to filter the data returned by an API endpoint. _Interpret {espressopp} Script_ parses
+the {espressopp} expression and passes the resulting _parse tree_ to use case _Generate Native Code_,
+which in turn generates the native query to be executed by the underlying data management system.
+
+[[logical-view]]
+== Logical View
+
+This section describes the logical structure of {espressopp}. The {espressopp} interpreter provides
+functionality for translating {espressopp} expressions into native queries. Figure <<key-elements>>
+shows the classes that make up {espressopp} and how they depend on each other.
+
+[[key-elements]]
+.Key Structural and Behavioral Elements
+image::key-elements.png[Class Diagram]
+
+The design of {espressopp} is based on the _visitor pattern_ so that new `CodeGenerator` implementations
+can be added anytime without the need to modify the `Espressopp` interpreter. `SqlCodeGenerator` is the
+default `CodeGenerator` implementation shipped with the first release of {espressopp}.
+
+=== Use Case Realization
+
+This section describes how the use cases are implemented and examines how the various design
+structures contribute to the functionality of the system. It also describes the collaborations
+that realize {espressopp} and contribute to define the dynamic view of the system.
+
+==== Use Case: Interpret {espressopp} Script
+
+This section describes the relationship between use case _Interpret {espressopp} Script_ and the
+collaborations that actually realize it.
+
+===== Scenario: Interpret {espressopp} Scritp
+
+The sequence diagram depicted in figure <<interpret-esspressopp-script>> describes how an
+{espressopp} script is interpreted into a native query.
+
+[[interpret-espressopp-script]]
+.Scenario Interpret {espressopp} Script
+image::interpret-espressopp-script.png[Sequence Diagram]
+
+The `Interpreter` is initialized by the _Client_ and provides functionality for parsing {espressopp}
+scripts to be converted into native queries by the `CodeGenerator`. The `CodeGenerator` is also
+initialized by the _Client_ and gets _accepted_ together with the `Reader` and `Writer` by the
+`Interpreter` -- this construct allows the `CodeGenerator` to access the `Parser` and get back the
+{espressopp} _grammar_.
+
+The `Reader` is where the {espressopp} script is read from by the `Parser`, whereas the `Writer`
+is where the `CodeGenerator` writes the resulting native query.
+
+[[process-view]]
+== Process View
+
+The process view describes the concurrent aspects of the system, namely the tasks (or processes)
+that make the system run and the interactions between them. {espressopp} is a module to be included
+into other applications. However, {espressopp} ships with a command-line utility that takes an
+{espressopp} espression as an input and returns the resulting native query.
+
+The diagram depicted in figure <<process-composition>> describes the process composition of the
+{espressopp} command-line utility and the mapping of resources onto this process.
+
+[[process-composition]]
+.Process Composition
+image::process-composition.png[Class Diagram]
+
+The {espressopp} command-line utility uses the `Interpreter` and `CodeGenerator` exactly the same
+way client applications do. It is meant to help developers debug filters written in {espressopp}
+script.
+
+---
+
+*Copyright &#169; 2020 Skeeter Health*
