@@ -6,7 +6,7 @@ v.0.1, 23.02.2020: First draft
 :toclevels: 3
 :description: Espresso++ Software Design Document
 :keywords: Espresso++ Software Design
-:imagesdir: {docdir}/assets/espressopp-sdd
+:imagesdir: ./assets/espressopp-sdd
 :espressopp: Espresso++
 
 [[introduction]]
