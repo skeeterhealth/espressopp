@@ -28,15 +28,18 @@ This design document applies to any Skeeter API that supports data filtering.
 Lexer:: The part of an interpreter that attaches meaning by classifying _lexemes_
 (string of symbols from the input) as particular tokens. For example, the _lexemes_
 `or`, `and`, and `not` are classified as _logical operators_ by the {espressopp} lexer.
+
 Parser:: The part of an interpreter that attaches meaning by classifying strings of
 tokens from the input (sentences) as particular _non-terminals_ and by building the
 _parse tree_. For example, token strings like `[number][operator][number]` or
 `[id][operator][id]` are classified as _non-terminal expressions_ by the {espressopp} parser.
+
 Interpreter:: A computer program that converts each high-level statement into code or
 instructions that can be understood by the underlying system.
+
 Visitor Pattern:: A way of separating an algorithm from the structure on which it operates.
-The result of this separation is the ability to add new operations to existing structures
-without modifying the structure.
+The result of this separation is the ability to add new operations to an existing structure
+without modifying the structure itself.
 
 [bibliography]
 === References
@@ -47,13 +50,13 @@ without modifying the structure.
 === Overview
 
 Skeeter APIs let clients specify a filter to limit or control the data returned by an endpoint.
-A filter consists of one or more statements written in {espressopp} <<els>> that abstracts away
+A filter consists of one or more statements written in {espressopp} <<els>> that abstract away
 the native query language of the underlying data management system.
 
 {espressopp} comes as a module together with a command-line utility that converts input
-{espressopp} expressions into native expressions expected by the underlying data management system.
-The next sections describe what functionality {espressopp} shall provide and how that functionality
-shall be implemented.
+{espressopp} expressions into native expressions that can be understood by the underlying data
+management system. The next sections describe what functionality {espressopp} shall provide
+and how that functionality shall be implemented.
 
 [[use-case-view]]
 == Use Case View
@@ -64,6 +67,7 @@ Figure <<use-case-diagram>> shows what fuctionality {espressopp} provides and wh
 [[use-case-diagram]]
 .Actors, Use Cases, and their Interactions
 image::use-case-diagram.png[Use Case Diagram]
+{empty} +
 
 Use case _Interpret {espressopp} Script_ is started by the _Client_ when an {espressopp} expression
 is executed to filter the data returned by an API endpoint. _Interpret {espressopp} Script_ parses
@@ -80,6 +84,7 @@ shows the classes that make up {espressopp} and how they depend on each other.
 [[key-elements]]
 .Key Structural and Behavioral Elements
 image::key-elements.png[Class Diagram]
+{empty} +
 
 The design of {espressopp} is based on the _visitor pattern_ so that new `CodeGenerator` implementations
 can be added anytime without the need to modify the `Espressopp` interpreter. `SqlCodeGenerator` is the
@@ -96,20 +101,21 @@ that realize {espressopp} and contribute to define the dynamic view of the syste
 This section describes the relationship between use case _Interpret {espressopp} Script_ and the
 collaborations that actually realize it.
 
-===== Scenario: Interpret {espressopp} Scritp
+===== Scenario: Interpret {espressopp} Script
 
-The sequence diagram depicted in figure <<interpret-esspressopp-script>> describes how an
+The sequence diagram depicted in figure <<interpret-espressopp-script>> describes how an
 {espressopp} script is interpreted into a native query.
 
 [[interpret-espressopp-script]]
 .Scenario Interpret {espressopp} Script
 image::interpret-espressopp-script.png[Sequence Diagram]
+{empty} +
 
 The `Interpreter` is initialized by the _Client_ and provides functionality for parsing {espressopp}
 scripts to be converted into native queries by the `CodeGenerator`. The `CodeGenerator` is also
 initialized by the _Client_ and gets _accepted_ together with the `Reader` and `Writer` by the
-`Interpreter` -- this construct allows the `CodeGenerator` to access the `Parser` and get back the
-{espressopp} _grammar_.
+`Interpreter` -- this construct allows the `CodeGenerator` to access the `Parser` instantiated by the
+`Interpreter` and get back the {espressopp} _grammar_.
 
 The `Reader` is where the {espressopp} script is read from by the `Parser`, whereas the `Writer`
 is where the `CodeGenerator` writes the resulting native query.
@@ -123,14 +129,15 @@ into other applications. However, {espressopp} ships with a command-line utility
 {espressopp} espression as an input and returns the resulting native query.
 
 The diagram depicted in figure <<process-composition>> describes the process composition of the
-{espressopp} command-line utility and the mapping of resources onto this process.
+{espressopp} command-line utility and the mapping of resources on it.
 
 [[process-composition]]
 .Process Composition
 image::process-composition.png[Class Diagram]
+{empty} +
 
 The {espressopp} command-line utility uses the `Interpreter` and `CodeGenerator` exactly the same
-way client applications do. It is meant to help developers debug filters written in {espressopp}
+way client applications do. It is just meant to help developers debug filters written in {espressopp}
 script.
 
 ---
