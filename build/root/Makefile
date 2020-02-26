@@ -26,7 +26,7 @@ MAKE_BINDIR = $(shell mkdir -p $(BINDIR))
 # default deploy target
 DEPLOY_TARGET := remote
 
-.PHONY: all get-tools init build clean test install uninstall docs fmt simplify check
+.PHONY: all get-tools init build clean test install uninstall docs docs-html docs-pdf fmt simplify check
 
 all: check test install
 
@@ -53,8 +53,17 @@ install: init $(MAKE_BINDIR)
 uninstall:
 	@rm -f $(BINDIR)/espressopp*
 
-docs:
-	@$(foreach file, $(wildcard $(DOCSDIR)/*.adoc), asciidoctor -D $(OUTDIR)/docs $(file);)
+docs: docs-html docs-pdf
+
+docs-html:
+	@$(foreach file, $(wildcard $(DOCSDIR)/*.adoc), asciidoctor \
+		-r asciidoctor-diagram \
+	   	-D $(OUTDIR)/docs/html $(file);)
+
+docs-pdf:
+	@$(foreach file, $(wildcard $(DOCSDIR)/*.adoc), asciidoctor-pdf \
+		-r asciidoctor-diagram \
+	   	-D $(OUTDIR)/docs/pdf $(file);)
 
 fmt: get-tools
 	@gofmt -l -w $(SRC)
