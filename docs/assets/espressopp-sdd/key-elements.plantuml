@@ -1,0 +1,27 @@
+abstract class Interpreter <<interface>> {
+  +Accept(CodeGenerator, Reader, Writer)
+  +Parse(Reader): Grammar
+}
+class Espressopp {
+  +Accept(CodeGenerator, Reader, Writer)
+  +Parse(Reader): Grammar
+}
+abstract class CodeGenerator<<interface>> {
+  +Visit(Interpreter, Reader, Writer)
+}
+class SqlCodeGenerator <<interface>> {
+  +Visit(Interpreter, Reader, Writer)
+}
+class Parser{
+  +Parse(Reader): Grammar
+}
+class Grammar{
+  +Query: {}
+}
+Client ..> Interpreter
+Client ..> CodeGenerator
+Interpreter <|-- Espressopp : extends
+note left: Call CodeGenerator.Visit(Interpreter, ...)
+CodeGenerator <|-- SqlCodeGenerator : extends
+Espressopp o-- Parser
+Grammar --* Parser

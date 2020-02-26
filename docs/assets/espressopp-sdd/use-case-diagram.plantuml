@@ -1,0 +1,5 @@
+Client << Aplication >>
+(Interpret Espresso++ Script) as (uc1)
+(Generate Native Code) as (uc2)
+Client -> (uc1)
+(uc1) ..> (uc2) : use
