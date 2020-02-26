@@ -1,6 +1,0 @@
-class espressopp <<process>> {
-  interpreter: Espressopp
-  codeGenerator: SqlCodeGenerator
-  reader: io.Reader
-  writer: io.Writer
-}
