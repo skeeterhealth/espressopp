@@ -66,7 +66,14 @@ Figure <<use-case-diagram>> shows what fuctionality {espressopp} provides and wh
 
 [[use-case-diagram]]
 .Actors, Use Cases, and their Interactions
-plantuml::{imagesdir}/use-case-diagram.plantuml[format="png", id="use-case-diagram"]
+[plantuml, format="png", id="use-case-diagram"]
+----
+Client << Aplication >>
+(Interpret Espresso++ Script) as (uc1)
+(Generate Native Code) as (uc2)
+Client -> (uc1)
+(uc1) ..> (uc2) : use
+----
 {empty} +
 
 Use case _Interpret {espressopp} Script_ is started by the _Client_ when an {espressopp} expression
@@ -83,7 +90,36 @@ shows the classes that make up {espressopp} and how they depend on each other.
 
 [[key-elements]]
 .Key Structural and Behavioral Elements
-plantuml::{imagesdir}/key-elements.plantuml[format="png", id="key-elements"]
+[plantuml, format="png", id="key-elements"]
+----
+abstract class Interpreter <<interface>> {
+  +Accept(CodeGenerator, Reader, Writer)
+  +Parse(Reader): Grammar
+}
+class Espressopp {
+  +Accept(CodeGenerator, Reader, Writer)
+  +Parse(Reader): Grammar
+}
+abstract class CodeGenerator<<interface>> {
+  +Visit(Interpreter, Reader, Writer)
+}
+class SqlCodeGenerator <<interface>> {
+  +Visit(Interpreter, Reader, Writer)
+}
+class Parser{
+  +Parse(Reader): Grammar
+}
+class Grammar{
+  +Query: {}
+}
+Client ..> Interpreter
+Client ..> CodeGenerator
+Interpreter <|-- Espressopp : extends
+note left: Call CodeGenerator.Visit(Interpreter, ...)
+CodeGenerator <|-- SqlCodeGenerator : extends
+Espressopp o-- Parser
+Grammar --* Parser
+----
 {empty} +
 
 The design of {espressopp} is based on the _visitor pattern_ so that new `CodeGenerator` implementations
@@ -108,7 +144,43 @@ The sequence diagram depicted in figure <<interpret-espressopp-script>> describe
 
 [[interpret-espressopp-script]]
 .Scenario Interpret {espressopp} Script
-plantuml::{imagesdir}/interpret-espressopp-script.plantuml[format="png", id="interpret-espressopp-script"]
+[plantuml, format="png", id="interpret-espressopp-script"]
+----
+actor Client
+create Espressopp
+Client --> Espressopp : new
+create Parser
+Espressopp --> Parser : new
+create Reader
+Client --> Reader : new
+create Writer
+Client --> Writer : new
+create SqlCodeGenerator
+Client --> SqlCodeGenerator : new
+Client -> Espressopp : Accept(codeGenerator, reader, writer)
+activate Espressopp
+Espressopp -> SqlCodeGenerator : Visit(interpreter, reader, writer)
+activate SqlCodeGenerator
+SqlCodeGenerator -> Espressopp : Parse(reader)
+Espressopp -> Parser : Parse(reader)
+activate Parser
+Parser -> Reader : Read()
+activate Reader
+return script
+return grammar
+Espressopp --> SqlCodeGenerator : grammar
+deactivate Espressopp
+SqlCodeGenerator -> SqlCodeGenerator : generateSql
+activate SqlCodeGenerator
+return sql
+SqlCodeGenerator -> Writer : Write(sql)
+activate Writer
+deactivate SqlCodeGenerator
+deactivate Writer
+Client -> Writer : String()
+activate Writer
+return sql
+----
 {empty} +
 
 The `Interpreter` is initialized by the _Client_ and provides functionality for parsing {espressopp}
@@ -133,7 +205,15 @@ The diagram depicted in figure <<process-composition>> describes the process com
 
 [[process-composition]]
 .Process Composition
-plantuml::{imagesdir}/process-composition.plantuml[format="png", id="process-composition"]
+[plantuml, format="png", id="process-composition"]
+----
+class espressopp <<process>> {
+  interpreter: Espressopp
+  codeGenerator: SqlCodeGenerator
+  reader: io.Reader
+  writer: io.Writer
+}
+----
 {empty} +
 
 The {espressopp} command-line utility uses the `Interpreter` and `CodeGenerator` exactly the same
