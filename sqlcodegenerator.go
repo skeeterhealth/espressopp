@@ -6,8 +6,13 @@
 
 package espressopp
 
+// SqlCodeGenerator is the CodeGenerator implementation that produces native SQL
+// from Espresso++ expressions.
 type SqlCodeGenerator struct {
 }
 
+// Visit lets cg access the functionality provided by i to parse the Espresso++
+// expressions in r and get back the grammar, which is then used to produce native
+// SQL into w.
 func (cg *SqlCodeGenerator) Visit(i *Interpreter, r io.Reader, w io.Writer) {
 }
