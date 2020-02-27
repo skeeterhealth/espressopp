@@ -216,9 +216,9 @@ class espressopp <<process>> {
 ----
 {empty} +
 
-The {espressopp} command-line utility uses the `Interpreter` and `CodeGenerator` exactly the same
-way client applications do. It is just meant to help developers debug filters written in {espressopp}
-script.
+The {espressopp} command-line utility uses the `Interpreter` and `CodeGenerator` exactly the same way
+client applications do. It is just meant to help developers debug filters written in the {espressopp}
+language.
 
 ---
 
