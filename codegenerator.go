@@ -7,7 +7,8 @@
 package espressopp
 
 // CodeGenerator is the interface implemented by any code generator that produces
-// native queries from Espresso++ expressions. 
+// native queries from expressions written in a language supported by a given
+// interpreter.
 type CodeGenerator interface {
     // Visit lets the code generator access the functionality provided by the
     // specified interpreter. More precisely, the code generator invokes the
