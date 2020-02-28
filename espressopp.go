@@ -6,13 +6,19 @@
 
 package espressopp
 
+// Espressopp is the Interpreter implementation that provides functionality
+// for parsing Espresso++ expressions.
 type Espressopp struct {
 }
 
+// Accept lets cg access the functionality provided by i. More precisely, cg
+// invokes i to parse the Espresso++ expressions in r and get back the grammar,
+// which is then used to produce the native query into w.
 func (i *Espressopp) Accept(cg CodeGenerator, r io.Reader, w io.Writer) {
 	cg.Visit(i, r, w)
 }
 
+// Parse parses the expressions in r and returns the resulting grammar.
 func (i *Espressopp) Parse(r io.Reader) Grammar {
 	return nil
 }
