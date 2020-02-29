@@ -13,6 +13,11 @@ import "io"
 type SqlCodeGenerator struct {
 }
 
+// NewSqlCodeGenerator creates a new instance of SqlCodeGenerator.
+func NewSqlCodeGenerator() CodeGenerator {
+	return &SqlCodeGenerator{}
+}
+
 // Visit lets cg access the functionality provided by i to parse the Espresso++
 // expressions in r and get back the grammar, which is then used to produce native
 // SQL into w.

@@ -14,6 +14,13 @@ type Espressopp struct {
 	parser *Parser
 }
 
+// NewEspressopp creates a new instance of Espressopp.
+func NewEspressopp() Interpreter {
+	return &Espressopp{
+		parser: &Parser{},
+	}
+}
+
 // Accept lets cg access the functionality provided by i. More precisely, cg
 // invokes i to parse the Espresso++ expressions in r and get back the grammar,
 // which is then used to produce the native query into w.
