@@ -1,3 +1,3 @@
-module github.com/skeeterhealth/espressopp
+module gitlab.com/skeeterhealth/espressopp
 
 go 1.13

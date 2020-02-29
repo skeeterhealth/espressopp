@@ -19,6 +19,11 @@ func main() {
 	w := new(bytes.Buffer)
 	interpreter := &Espressopp{}
 	codeGenerator := &SqlCodeGenerator{}
-	interpreter.Accept(codeGenerator, r, w)
-	fmt.Println(w.String())
+	err := interpreter.Accept(codeGenerator, r, w)
+
+	if err != nil {
+		fmt.Sprintf("Error generating sql from %s\n", r.String())
+	} else {
+		fmt.Println(w.String())
+	}
 }

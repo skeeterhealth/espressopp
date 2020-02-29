@@ -10,10 +10,10 @@ package espressopp
 // native queries from expressions written in a language supported by a given
 // interpreter.
 type CodeGenerator interface {
-    // Visit lets the code generator access the functionality provided by the
-    // specified interpreter. More precisely, the code generator invokes the
-    // interpreter to parse the expressions in the specified reader and get
-    // back the grammar, which is then used to produce the native query into
-    // the specified writer.
-	Visit(*interpreter, io.Reader, io.Writer)
+	// Visit lets the code generator access the functionality provided by the
+	// specified interpreter. More precisely, the code generator invokes the
+	// interpreter to parse the expressions in the specified reader and get
+	// back the grammar, which is then used to produce the native query into
+	// the specified writer.
+	Visit(*interpreter, io.Reader, io.Writer) error
 }

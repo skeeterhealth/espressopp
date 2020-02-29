@@ -18,5 +18,5 @@ type Parser struct {
 }
 
 // parse parses the Espresso++ expressions in r and returns the resulting grammar.
-func (p *Parser) parse(r io.Reader) Grammar {
+func (p *Parser) parse(r io.Reader) (error, Grammar) {
 }

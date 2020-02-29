@@ -15,9 +15,9 @@ type Interpreter struct {
     // interpreter to parse the expressions in the specified reader and get back
     // the grammar, which is then used to produce the native query into the
     // specified writer.
-	Accept (CodeGenerator, io.Reader, io.Writer)
-	
+	Accept(CodeGenerator, io.Reader, io.Writer) error
+
 	// Parse parses the expressions in the specified reader and returns the
 	// resulting grammar.
-	Parse(io.Reader) Grammar
+	Parse(io.Reader) (error, Grammar)
 }

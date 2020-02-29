@@ -35,9 +35,10 @@ get-tools: $(MAKE_BINDIR)
 
 init:
 ifeq (, $(wildcard ./go.mod))
-	@go mod init github.com/skeeterhealth/espressopp
+	@go mod init gitlab.com/skeeterhealth/espressopp
 endif
 
+# build: export GOPRIVATE=gitlab.com/skeeterhealth
 build: init $(MAKE_OUTDIR)
 	@go build $(LDFLAGS) -o $(OUTDIR) ./cmd/espressopp
 
