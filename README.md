@@ -78,6 +78,8 @@ management systems with other query languages does not change. Below is an examp
 of how to get an Espresso++ expression translated into SQL:
 
 ```go
+package main
+
 import (
 	"bytes"
 	"fmt"
@@ -89,16 +91,26 @@ import (
 func main() {
 	r := strings.NewReader("age gte 30")
 	w := new(bytes.Buffer)
-	interpreter := &Espressopp{}
-	codeGenerator := &SqlCodeGenerator{}
-	interpreter.Accept(codeGenerator, r, w)
-	fmt.Println(w.String()) // prints "where age >= 30"
-}
+	interpreter := espressopp.NewEspressopp()
+	codeGenerator := espressopp.NewSqlCodeGenerator()
+	err := interpreter.Accept(codeGenerator, r, w)
 
+	if err != nil {
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(r)
+		msg := fmt.Errorf("Error generating sql from %v: %v", buf.String(), err)
+		fmt.Println(msg)
+	} else {
+		fmt.Println(w.String())
+	}
+}
 ```
+
 If Espresso++ supported MongoDB, the client code would be something like this: 
 
 ```go
+package main
+
 import (
 	"bytes"
 	"fmt"
@@ -110,10 +122,18 @@ import (
 func main() {
 	r := strings.NewReader("age gte 30")
 	w := new(bytes.Buffer)
-	interpreter := &Espressopp{}
-	codeGenerator := &MongoCodeGenerator{}
-	interpreter.Accept(codeGenerator, r, w)
-	fmt.Println(w.String()) // prints "{ age: { $gte: 30 } }"
+	interpreter := espressopp.NewEspressopp()
+	codeGenerator := espressopp.NewMongoCodeGenerator()
+	err := interpreter.Accept(codeGenerator, r, w)
+
+	if err != nil {
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(r)
+		msg := fmt.Errorf("Error generating sql from %v: %v", buf.String(), err)
+		fmt.Println(msg)
+	} else {
+		fmt.Println(w.String())
+	}
 }
 ```
 
