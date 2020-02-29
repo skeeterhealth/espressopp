@@ -15,16 +15,20 @@ SRC = $(shell find . -type f -name '*.go')
 # documentation directory
 DOCSDIR := ${CURDIR}/docs
 
-# create build directory
+# create outputdirectory
 OUTDIR := ${CURDIR}/out
 MAKE_OUTDIR = $(shell mkdir -p $(OUTDIR))
+
+# create test directory
+TSTDIR := ${CURDIR}/out/test
+MAKE_TSTDIR = $(shell mkdir -p $(TSTDIR))
 
 # create bin directory
 BINDIR := $(GOPATH)/bin
 MAKE_BINDIR = $(shell mkdir -p $(BINDIR))
 
-# default deploy target
-DEPLOY_TARGET := remote
+# current timestamp
+TIMESTAMP := $$(date +%Y%m%d%H%M%S)
 
 .PHONY: all get-tools init build clean test install uninstall docs docs-html docs-pdf fmt simplify check
 
@@ -45,8 +49,12 @@ build: init $(MAKE_OUTDIR)
 clean:
 	@rm -rf $(OUTDIR)
 
-test:
-	@go test ./...
+test: get-tools $(MAKE_TSTDIR)
+	$(eval FILENAME := cover_$$(TIMESTAMP))
+	@-go test -coverprofile=$(TSTDIR)/$(FILENAME).txt .
+ifeq (, $(wildcard $(TSTDIR)/$(FILENAME).txt))
+	@go tool cover -html=$(TSTDIR)/$(FILENAME).txt -o $(TSTDIR)/$(FILENAME).html
+endif
 
 install: init $(MAKE_BINDIR)
 	@go install $(LDFLAGS) ./cmd/espressopp
