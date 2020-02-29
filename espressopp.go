@@ -6,9 +6,12 @@
 
 package espressopp
 
+import "io"
+
 // Espressopp is the Interpreter implementation that provides functionality
 // for parsing Espresso++ expressions.
 type Espressopp struct {
+	parser *Parser
 }
 
 // Accept lets cg access the functionality provided by i. More precisely, cg
@@ -19,6 +22,6 @@ func (i *Espressopp) Accept(cg CodeGenerator, r io.Reader, w io.Writer) error {
 }
 
 // Parse parses the expressions in r and returns the resulting grammar.
-func (i *Espressopp) Parse(r io.Reader) (error, Grammar) {
+func (i *Espressopp) Parse(r io.Reader) (error, *Grammar) {
 	return nil, nil
 }

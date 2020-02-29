@@ -6,6 +6,8 @@
 
 package espressopp
 
+import "io"
+
 // CodeGenerator is the interface implemented by any code generator that produces
 // native queries from expressions written in a language supported by a given
 // interpreter.
@@ -15,5 +17,5 @@ type CodeGenerator interface {
 	// interpreter to parse the expressions in the specified reader and get
 	// back the grammar, which is then used to produce the native query into
 	// the specified writer.
-	Visit(*interpreter, io.Reader, io.Writer) error
+	Visit(Interpreter, io.Reader, io.Writer) error
 }

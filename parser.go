@@ -6,6 +6,10 @@
 
 package espressopp
 
+import (
+	"io"
+)
+
 // Grammar is the set of structural rules that govern the composition of an
 // Espesso++ expression.
 type Grammar struct {
@@ -18,5 +22,6 @@ type Parser struct {
 }
 
 // parse parses the Espresso++ expressions in r and returns the resulting grammar.
-func (p *Parser) parse(r io.Reader) (error, Grammar) {
+func (p *Parser) parse(r io.Reader) (error, *Grammar) {
+	return nil, nil
 }

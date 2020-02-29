@@ -17,12 +17,14 @@ import (
 func main() {
 	r := strings.NewReader("age gte 30")
 	w := new(bytes.Buffer)
-	interpreter := &Espressopp{}
-	codeGenerator := &SqlCodeGenerator{}
+	interpreter := &espressopp.Espressopp{}
+	codeGenerator := &espressopp.SqlCodeGenerator{}
 	err := interpreter.Accept(codeGenerator, r, w)
 
 	if err != nil {
-		fmt.Sprintf("Error generating sql from %s\n", r.String())
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(r)
+		fmt.Sprintf("Error generating sql from %s\n", buf.String())
 	} else {
 		fmt.Println(w.String())
 	}
