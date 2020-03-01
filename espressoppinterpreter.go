@@ -8,15 +8,15 @@ package espressopp
 
 import "io"
 
-// Espressopp is the Interpreter implementation that provides functionality
-// for parsing Espresso++ expressions.
-type Espressopp struct {
+// EspressoppInterpreter is the Interpreter implementation that provides
+// functionality for parsing Espresso++ expressions.
+type EspressoppInterpreter struct {
 	parser *Parser
 }
 
-// NewEspressopp creates a new instance of Espressopp.
-func NewEspressopp() Interpreter {
-	return &Espressopp{
+// NewEspressoppInterpreter creates a new instance of EspressoppInterpreter.
+func NewEspressoppInterpreter() Interpreter {
+	return &EspressoppInterpreter{
 		parser: &Parser{},
 	}
 }
@@ -24,11 +24,11 @@ func NewEspressopp() Interpreter {
 // Accept lets cg access the functionality provided by i. More precisely, cg
 // invokes i to parse the Espresso++ expressions in r and get back the grammar,
 // which is then used to produce the native query into w.
-func (i *Espressopp) Accept(cg CodeGenerator, r io.Reader, w io.Writer) error {
+func (i *EspressoppInterpreter) Accept(cg CodeGenerator, r io.Reader, w io.Writer) error {
 	return cg.Visit(i, r, w)
 }
 
 // Parse parses the expressions in r and returns the resulting grammar.
-func (i *Espressopp) Parse(r io.Reader) (error, *Grammar) {
+func (i *EspressoppInterpreter) Parse(r io.Reader) (error, *Grammar) {
 	return nil, nil
 }
