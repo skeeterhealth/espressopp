@@ -18,4 +18,11 @@ type CodeGenerator interface {
 	// back the grammar, which is then used to produce the native query into
 	// the specified writer.
 	Visit(Interpreter, io.Reader, io.Writer) error
+
+	// MapFieldNames lets the client application map each field in the input
+	// expression with a different name in the output native query. This
+	// mapping is only necessary for those fields in the input expression
+	// that do not match the field names of the underlying data management
+	// system.
+	MapFieldNames(map[string]string)
 }
