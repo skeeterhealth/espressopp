@@ -11,6 +11,7 @@ import "io"
 // SqlCodeGenerator is the CodeGenerator implementation that produces native SQL
 // from Espresso++ expressions.
 type SqlCodeGenerator struct {
+	fieldNames map[string]string
 }
 
 // NewSqlCodeGenerator creates a new instance of SqlCodeGenerator.
@@ -23,4 +24,12 @@ func NewSqlCodeGenerator() CodeGenerator {
 // SQL into w.
 func (cg *SqlCodeGenerator) Visit(i Interpreter, r io.Reader, w io.Writer) error {
 	return nil
+}
+
+// MapFieldNames lets the client application map each field in the input expression
+// with a different name in the output SQL query. This Mapping is only necessary for
+// those fields in the input expression that do not match the field names of the
+// underlying database. If m is nil, then no mapping is applied.
+func (cg *SqlCodeGenerator) MapFieldNames(m map[string]string) {
+	cg.fieldNames = m
 }
