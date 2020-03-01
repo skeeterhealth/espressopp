@@ -7,12 +7,83 @@
 package espressopp
 
 import (
+	//	"github.com/alecthomas/participle"
 	"io"
 )
+
+type Term struct {
+	Identifier string   `@Ident`
+	Number     *float64 `| @(@Float | @Int)`
+	String     *string  `| @String`
+	Bool       *bool    `| @("true" | "false")`
+}
+
+type NumericTerm struct {
+	Identifier string   `@Ident`
+	Number     *float64 `| @(@Float | @Int)`
+}
+
+type TextualTerm struct {
+	Identifier string  `@Ident`
+	String     *string `| @String`
+}
+
+type Equality struct {
+	Term1 *Term  `@@`
+	Op    string `@("eq" | "neq")`
+	Term2 *Term  `@@`
+}
+
+type Comparison struct {
+	Term1 *NumericTerm `@@`
+	Op    string       `@("gt" | "gte" | "lt" | "lte")`
+	Term2 *NumericTerm `@@`
+}
+
+type NumericRange struct {
+	Term1   *NumericTerm `@@`
+	Between string       `@("between")`
+	Term2   *NumericTerm `@@`
+	And     string       `@("and")`
+	Term3   *NumericTerm `@@`
+}
+
+type TextualMatching struct {
+	Term1 *TextualTerm `@@`
+	Op    string       `@("startswith" | "endswith" | "contains")`
+	Term2 *TextualTerm `@@`
+}
+
+type IdentifierIs struct {
+	Ident string  `@Ident`
+	Op    string  `"is" @("not")?`
+	Bool  *bool   `@("true" | "false")`
+	Null  *string `| @("null")`
+}
+
+type IsIdentifier struct {
+	Op    string `is @("not")?`
+	Ident string `@Ident`
+}
+
+type Expression struct {
+	Equality        *Equality        `@@`
+	Comparison      *Comparison      `| @@`
+	NumericRange    *NumericRange    `| @@`
+	TextualMatching *TextualMatching `| @@`
+	IdentifierId    *IdentifierIs    `@@`
+	IsIdentifier    *IsIdentifier    `@@`
+	ParenExpression *ParenExpression `| @("and" | "or")? @@`
+}
+
+type ParenExpression struct {
+	Expression *Expression `@("not")? "(" @@ ")"`
+}
 
 // Grammar is the set of structural rules that govern the composition of an
 // Espesso++ expression.
 type Grammar struct {
+	Expressions []*Expression `@@+`
 }
 
 // Parser is the part of an interpreter that attaches meaning by classifying strings
