@@ -17,7 +17,7 @@
 //  func main() {
 //      r := strings.NewReader("age gte 30")
 //      w := new(bytes.Buffer)
-//      interpreter := espressopp.NewEspressopp()
+//      interpreter := espressopp.NewEspressoppInterpreter()
 //      codeGenerator := espressopp.NewSqlCodeGenerator()
 //      err := interpreter.Accept(codeGenerator, r, w)
 //
