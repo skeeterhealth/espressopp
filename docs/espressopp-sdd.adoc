@@ -102,9 +102,11 @@ class Espressopp {
 }
 abstract class CodeGenerator<<interface>> {
   +Visit(Interpreter, Reader, Writer)
+  +MapFieldNames(Map)
 }
-class SqlCodeGenerator <<interface>> {
+class SqlCodeGenerator {
   +Visit(Interpreter, Reader, Writer)
+  +MapFieldNames(Map)
 }
 class Parser{
   +Parse(Reader): Grammar
@@ -191,6 +193,10 @@ initialized by the _Client_ and gets _accepted_ together with the `Reader` and `
 
 The `Reader` is where the {espressopp} script is read from by the `Parser`, whereas the `Writer`
 is where the `CodeGenerator` writes the resulting native query.
+
+By default field names in the input {espressopp} expression remain unchanged in the output native
+query. Should not the fields in the {espressopp} expression match the name of the fields in the
+underlying databse, a mapping needs to be provided by calling `MapFieldNames`.
 
 [[process-view]]
 == Process View
