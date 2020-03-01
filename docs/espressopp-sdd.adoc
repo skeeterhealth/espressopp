@@ -96,11 +96,11 @@ abstract class Interpreter <<interface>> {
   +Accept(CodeGenerator, Reader, Writer)
   +Parse(Reader): Grammar
 }
-class Espressopp {
+class EspressoppInterpreter {
   +Accept(CodeGenerator, Reader, Writer)
   +Parse(Reader): Grammar
 }
-abstract class CodeGenerator<<interface>> {
+abstract class CodeGenerator <<interface>> {
   +Visit(Interpreter, Reader, Writer)
   +MapFieldNames(Map)
 }
@@ -116,16 +116,16 @@ class Grammar{
 }
 Client ..> Interpreter
 Client ..> CodeGenerator
-Interpreter <|-- Espressopp : extends
+Interpreter <|-- EspressoppInterpreter : extends
 note left: Call CodeGenerator.Visit(Interpreter, ...)
 CodeGenerator <|-- SqlCodeGenerator : extends
-Espressopp o-- Parser
+EspressoppInterpreter o-- Parser
 Grammar --* Parser
 ----
 {empty} +
 
 The design of {espressopp} is based on the _visitor pattern_ so that new `CodeGenerator` implementations
-can be added anytime without the need to modify the `Espressopp` interpreter. `SqlCodeGenerator` is the
+can be added anytime without the need to modify `EspressoppInterpreter`. `SqlCodeGenerator` is the
 default `CodeGenerator` implementation shipped with the first release of {espressopp}.
 
 === Use Case Realization
@@ -149,29 +149,29 @@ The sequence diagram depicted in figure <<interpret-espressopp-script>> describe
 [plantuml, format="png", id="interpret-espressopp-script"]
 ----
 actor Client
-create Espressopp
-Client --> Espressopp : new
+create EspressoppInterpreter
+Client --> EspressoppInterpreter : new
 create Parser
-Espressopp --> Parser : new
+EspressoppInterpreter --> Parser : new
 create Reader
 Client --> Reader : new
 create Writer
 Client --> Writer : new
 create SqlCodeGenerator
 Client --> SqlCodeGenerator : new
-Client -> Espressopp : Accept(codeGenerator, reader, writer)
-activate Espressopp
-Espressopp -> SqlCodeGenerator : Visit(interpreter, reader, writer)
+Client -> EspressoppInterpreter : Accept(codeGenerator, reader, writer)
+activate EspressoppInterpreter
+EspressoppInterpreter -> SqlCodeGenerator : Visit(interpreter, reader, writer)
 activate SqlCodeGenerator
-SqlCodeGenerator -> Espressopp : Parse(reader)
-Espressopp -> Parser : Parse(reader)
+SqlCodeGenerator -> EspressoppInterpreter : Parse(reader)
+EspressoppInterpreter -> Parser : Parse(reader)
 activate Parser
 Parser -> Reader : Read()
 activate Reader
 return script
 return grammar
-Espressopp --> SqlCodeGenerator : grammar
-deactivate Espressopp
+EspressoppInterpreter --> SqlCodeGenerator : grammar
+deactivate EspressoppInterpreter
 SqlCodeGenerator -> SqlCodeGenerator : generateSql
 activate SqlCodeGenerator
 return sql
@@ -214,7 +214,7 @@ The diagram depicted in figure <<process-composition>> describes the process com
 [plantuml, format="png", id="process-composition"]
 ----
 class espressopp <<process>> {
-  interpreter: Espressopp
+  interpreter: EspressoppInterpreter
   codeGenerator: SqlCodeGenerator
   reader: io.Reader
   writer: io.Writer
