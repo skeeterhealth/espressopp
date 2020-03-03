@@ -12,19 +12,19 @@ import (
 )
 
 type Term struct {
-	Identifier string   `@Ident`
-	Number     *float64 `| @(@Float | @Int)`
+	Identifier string   `  @Ident`
+	Number     *float64 `| @Float | @Int`
 	String     *string  `| @String`
 	Bool       *bool    `| @("true" | "false")`
 }
 
 type NumericTerm struct {
-	Identifier string   `@Ident`
-	Number     *float64 `| @(@Float | @Int)`
+	Identifier string   `  @Ident`
+	Number     *float64 `| @Float | @Int`
 }
 
 type TextualTerm struct {
-	Identifier string  `@Ident`
+	Identifier string  `  @Ident`
 	String     *string `| @String`
 }
 
@@ -42,9 +42,9 @@ type Comparison struct {
 
 type NumericRange struct {
 	Term1   *NumericTerm `@@`
-	Between string       `@("between")`
+	Between string       `"between"`
 	Term2   *NumericTerm `@@`
-	And     string       `@("and")`
+	And     string       `"and"`
 	Term3   *NumericTerm `@@`
 }
 
@@ -54,25 +54,17 @@ type TextualMatching struct {
 	Term2 *TextualTerm `@@`
 }
 
-type IdentifierIs struct {
-	Ident string  `@Ident`
-	Op    string  `"is" @("not")?`
-	Bool  *bool   `@("true" | "false")`
-	Null  *string `| @("null")`
-}
-
-type IsIdentifier struct {
-	Op    string `is @("not")?`
-	Ident string `@Ident`
+type Is struct {
+	IdentIs string `  @Ident "is" @("not")? @("true" | "false" | "null")`
+	IsIdent string `| "is" @("not")? @Ident`
 }
 
 type Expression struct {
-	Equality        *Equality        `@@`
+	Equality        *Equality        `  @@`
 	Comparison      *Comparison      `| @@`
 	NumericRange    *NumericRange    `| @@`
 	TextualMatching *TextualMatching `| @@`
-	IdentifierId    *IdentifierIs    `@@`
-	IsIdentifier    *IsIdentifier    `@@`
+	Is              *Is              `| @@`
 	ParenExpression *ParenExpression `| @("and" | "or")? @@`
 }
 
