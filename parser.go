@@ -7,74 +7,88 @@
 package espressopp
 
 import (
-	//	"github.com/alecthomas/participle"
+	"github.com/alecthomas/participle/lexer"
 	"io"
 )
 
 type Term struct {
+	Pos        lexer.Position
 	Identifier string   `  @Ident`
-	Number     *float64 `| @Float | @Int`
+	Integer    *int     `| @Int`
+	Decimal    *float64 `| @Float`
 	String     *string  `| @String`
 	Bool       *bool    `| @("true" | "false")`
 }
 
 type NumericTerm struct {
+	Pos        lexer.Position
 	Identifier string   `  @Ident`
-	Number     *float64 `| @Float | @Int`
+	Integer    *int     `| @Int`
+	Decimal    *float64 `| @Float`
 }
 
 type TextualTerm struct {
+	Pos        lexer.Position
 	Identifier string  `  @Ident`
 	String     *string `| @String`
 }
 
 type Equality struct {
+	Pos   lexer.Position
 	Term1 *Term  `@@`
 	Op    string `@("eq" | "neq")`
 	Term2 *Term  `@@`
 }
 
 type Comparison struct {
+	Pos   lexer.Position
 	Term1 *NumericTerm `@@`
 	Op    string       `@("gt" | "gte" | "lt" | "lte")`
 	Term2 *NumericTerm `@@`
 }
 
 type NumericRange struct {
-	Term1   *NumericTerm `@@`
-	Between string       `"between"`
-	Term2   *NumericTerm `@@`
-	And     string       `"and"`
-	Term3   *NumericTerm `@@`
+	Pos   lexer.Position
+	Term1 *NumericTerm `@@ "between"`
+	Term2 *NumericTerm `@@ "and"`
+	Term3 *NumericTerm `@@`
 }
 
 type TextualMatching struct {
+	Pos   lexer.Position
 	Term1 *TextualTerm `@@`
 	Op    string       `@("startswith" | "endswith" | "contains")`
 	Term2 *TextualTerm `@@`
 }
 
 type Is struct {
-	IdentIs string `  @Ident "is" @("not")? @("true" | "false" | "null")`
-	IsIdent string `| "is" @("not")? @Ident`
+	Pos   lexer.Position
+	Ident string `@Ident?`
+	Op    string `"is" @("not")?`
+	Value string `@("true" | "false" | "null") | @Ident`
 }
 
 type Expression struct {
+	Pos             lexer.Position
 	Equality        *Equality        `  @@`
 	Comparison      *Comparison      `| @@`
 	NumericRange    *NumericRange    `| @@`
 	TextualMatching *TextualMatching `| @@`
 	Is              *Is              `| @@`
-	ParenExpression *ParenExpression `| @("and" | "or")? @@`
+	ParenExpression *ParenExpression `| @@`
 }
 
 type ParenExpression struct {
-	Expression *Expression `@("not")? "(" @@ ")"`
+	Pos        lexer.Position
+	Op1        string      `@("and" | "or")`
+	Op2        string      `@("not")?`
+	Expression *Expression `(" @@ ")"`
 }
 
 // Grammar is the set of structural rules that govern the composition of an
 // Espesso++ expression.
 type Grammar struct {
+	Pos         lexer.Position
 	Expressions []*Expression `@@+`
 }
 
