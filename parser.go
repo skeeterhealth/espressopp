@@ -13,11 +13,11 @@ import (
 
 type Term struct {
 	Pos        lexer.Position
-	Identifier string   `  @Ident`
-	Integer    *int     `| @Int`
-	Decimal    *float64 `| @Float`
-	String     *string  `| @String`
-	Bool       *bool    `| @("true" | "false")`
+	Identifier string     `  @Ident`
+	Integer    *int       `| @Int`
+	Decimal    *float64   `| @Float`
+	String     *string    `| @String`
+	Bool       *bool      `| @("true" | "false")`
 }
 
 type NumericTerm struct {
@@ -61,6 +61,13 @@ type TextualMatching struct {
 	Term2 *TextualTerm `@@`
 }
 
+type MathOperation struct {
+    Pos   lexer.Position
+    Term1 NumericTerm `@@`
+    Op    string      `@("plus" | "minus" | "mul" | "div")`
+    Term2 NumericTerm `@@`
+}
+
 type Is struct {
 	Pos   lexer.Position
 	Ident string `@Ident?`
@@ -74,6 +81,7 @@ type Expression struct {
 	Comparison      *Comparison      `| @@`
 	NumericRange    *NumericRange    `| @@`
 	TextualMatching *TextualMatching `| @@`
+	MathOperation   *MathOperation   `| @@`
 	Is              *Is              `| @@`
 	ParenExpression *ParenExpression `| @@`
 }
