@@ -7,76 +7,68 @@
 package espressopp
 
 import (
+	"github.com/alecthomas/participle"
 	"github.com/alecthomas/participle/lexer"
+	"github.com/alecthomas/repr"
 	"io"
 )
 
 type Term struct {
-	Pos        lexer.Position
-	Identifier string     `  @Ident`
-	Integer    *int       `| @Int`
-	Decimal    *float64   `| @Float`
-	String     *string    `| @String`
-	Bool       *bool      `| @("true" | "false")`
+	Identifier string  `  @Ident`
+	Integer    int     `| @Int`
+	Decimal    float64 `| @Float`
+	String     string  `| @String`
+	Bool       bool    `| @("true" | "false")`
 }
 
 type NumericTerm struct {
-	Pos        lexer.Position
-	Identifier string   `  @Ident`
-	Integer    *int     `| @Int`
-	Decimal    *float64 `| @Float`
+	Identifier string  `  @Ident`
+	Integer    int     `| @Int`
+	Decimal    float64 `| @Float`
 }
 
 type TextualTerm struct {
-	Pos        lexer.Position
-	Identifier string  `  @Ident`
-	String     *string `| @String`
+	Identifier string `  @Ident`
+	String     string `| @String`
 }
 
 type Equality struct {
-	Pos   lexer.Position
 	Term1 *Term  `@@`
 	Op    string `@("eq" | "neq")`
 	Term2 *Term  `@@`
 }
 
 type Comparison struct {
-	Pos   lexer.Position
 	Term1 *NumericTerm `@@`
 	Op    string       `@("gt" | "gte" | "lt" | "lte")`
 	Term2 *NumericTerm `@@`
 }
 
 type NumericRange struct {
-	Pos   lexer.Position
 	Term1 *NumericTerm `@@ "between"`
 	Term2 *NumericTerm `@@ "and"`
 	Term3 *NumericTerm `@@`
 }
 
 type TextualMatching struct {
-	Pos   lexer.Position
 	Term1 *TextualTerm `@@`
 	Op    string       `@("startswith" | "endswith" | "contains")`
 	Term2 *TextualTerm `@@`
 }
 
 type Mathematics struct {
-    Pos   lexer.Position
-    Term1 NumericTerm `@@`
-    Op    string      `@("plus" | "minus" | "mul" | "div")`
-    Term2 NumericTerm `@@`
+	Term1 NumericTerm `@@`
+	Op    string      `@("plus" | "minus" | "mul" | "div")`
+	Term2 NumericTerm `@@`
 }
 
 type Is struct {
-	Pos   lexer.Position
 	Ident string `@Ident?`
 	Op    string `"is" @("not")?`
 	Value string `@("true" | "false" | "null") | @Ident`
 }
 
 type Expression struct {
-	Pos             lexer.Position
 	Equality        *Equality        `  @@`
 	Comparison      *Comparison      `| @@`
 	NumericRange    *NumericRange    `| @@`
@@ -87,16 +79,14 @@ type Expression struct {
 }
 
 type ParenExpression struct {
-	Pos        lexer.Position
 	Op1        string      `@("and" | "or")`
 	Op2        string      `@("not")?`
-	Expression *Expression `(" @@ ")"`
+	Expression *Expression `"(" @@ ")"`
 }
 
 // Grammar is the set of structural rules that govern the composition of an
 // Espesso++ expression.
 type Grammar struct {
-	Pos         lexer.Position
 	Expressions []*Expression `@@+`
 }
 
@@ -106,7 +96,22 @@ type Grammar struct {
 type Parser struct {
 }
 
-// parse parses the Espresso++ expressions in r and returns the resulting grammar.
-func (p *Parser) parse(r io.Reader) (error, *Grammar) {
-	return nil, nil
+// NewParser creates a new instance of Parser..
+func NewParser() *Parser {
+	return &Parser{}
+}
+
+// Parse parses the Espresso++ expressions in r and returns the resulting grammar.
+func (p *Parser) Parse(r io.Reader) (error, *Grammar) {
+	parser := participle.MustBuild(&Grammar{}, participle.UseLookahead(2))
+
+	grammar := &Grammar{}
+	err := parser.Parse(r, grammar)
+
+	return err, grammar
+}
+
+// String returns a string representation of g.
+func (p *Parser) String(g *Grammar) string {
+	return repr.String(g, repr.Hide(&lexer.Position{}))
 }
