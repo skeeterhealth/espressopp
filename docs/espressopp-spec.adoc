@@ -29,7 +29,7 @@ principles and processes by which statements are constructed in {espressopp}.
 
 The first version of {espressopp} supports logical and matching _operators_ as well as
 a number of helpful _macros_. A record is selected when the filtering expression evaluates
-to `true` -- an expression is a combination of one or more constants, fields, operators,
+to `true` &ndash; an expression is a combination of one or more constants, fields, operators,
 and macros that {espressopp} interprets and computes to produce a native query.
 
 _Logical operators_ allow a program to make a decision based on multiple conditions.
@@ -88,19 +88,19 @@ expression matches a given condition. Matching conditions can be evaluated to `t
 |Evaluates to `true` if the left-hand side expression is less than or equal to the right-hand side expression
 
 |`between`
-|`between` *expr1* `and` *expr2*
+|*expr1* `between` *expr2* `and` *expr3*
 |Evaluates to `true` if the expression is within the given range
 
 |`startswith`
-|`startswith` *expr*
+|*expr1* `startswith` *expr2*
 |Evaluates to `true` if the expression starts with the given string
 
 |`endswith`
-|`endswith` *expr*
+|*expr1* `endswith` *expr2*
 |Evaluates to `true` if the expression ends with the given string
 
 |`contains`
-|`contains` *expr*
+|*expr1* `contains` *expr2*
 |Evaluates to `true` if the expression contains the given string
 |===
 
@@ -123,6 +123,29 @@ _Macros_ are single instructions that expand automatically into a set of instruc
 |Expands to a duration in milliseconds
 |===
 
+Finally, {espressopp} supports basic mathematics that allow complex expressions.
+
+.Mathematics
+|===
+|Math |Usage |Description
+
+|`plus`
+|*expr1* `plus` *expr2*
+|Sums an expression to another
+
+|`minus`
+|*expr1* `minus` *expr2*
+|Subtracts an expression from another
+
+|`mul`
+|*expr1* `mul` *expr2*
+|Multiplies an expression by another
+
+|`div`
+|*expr1* `div` *expr2*
+|Divides an expression by another
+|===
+
 [[grammar]]
 == Grammar
 
@@ -139,36 +162,28 @@ bool                    = "true" | "false" .
 
 Query                   = Expression { Expression } .
 
-Expression              = EquelTo
-                        | NotEqualTo
-                        | GreaterThan
-                        | GreaterThanOrEqualTo
-                        | LessThan
-                        | LessThanOrEqualTo
-                        | Between
-                        | StartsWith
-                        | EndsWith
-                        | Contains
+Expression              = Equality
+                        | Comparison
+                        | NumericRange
+                        | TextualMatching
+                        | Mathematics
                         | Is
-                        | ParenExpression [ [ "and" | "or" ] ParenExpression ] .
-ParenExpression         = [ "not" ] "(" Expression ")" .
+                        | ParenExpression .
+ParenExpression         = ( "and" | "or" ) [ "not" ] "(" Expression ")" .
 
 Term                    = identifier | int | float | string | bool .
 NumericTerm             = identifier | int | float .
 TextualTerm             = identifier | string .
 
-EqualTo                 = Term "eq" Term .
-NotEqualTo              = Term "neq" Term .
+Equality                = Term ( "eq" | "neq" ) Term .
 
-GreaterThan             = NumericTerm "gt" NumericTerm .
-GreaterThanOrEqualTo    = NumericTerm "gte" NumericTerm .
-LessThan                = NumericTerm "lt" NumericTerm .
-LessThanOrEqualTo       = NumericTerm "lte" NumericTerm .
-Between                 = NumericTerm "between" NumericTerm "and" NumericTerm .
+Comparison              = NumericTerm ( "gt" | "gte" | "lt" | "lte" ) NumericTerm .
 
-StartsWith              = TextualTerm "startswith" TextualTerm .
-EndsWith                = TextualTerm "endswith" TextualTerm .
-Contains                = TextualTerm "contains" TextualTerm .
+NumericRange            = NumericTerm "between" NumericTerm "and" NumericTerm .
+
+TextualMatching         = TextualTerm ( "startswith" | "endswith" | "contains" ) TextualTerm .
+
+Mathematics             = NumericTerm ( "plus" | "minus" | "mul" | "div" ) NumericTerm .
 
 Is                      = identifier "is" [ "not" ] bool
                         | "is" [ "not "] identifier
@@ -197,7 +212,7 @@ create_time eq #today and (status neq "processed" or size gt 3000)
 
 Select the orders with at least 2000 items that have been created in the past 2 hours:
 ```
-size gte 2000 and not(create_time lt #now - #duration("PT2H"))
+size gte 2000 and not(create_time lt #now minus #duration("PT2H"))
 ```
 
 Select internal orders issued by employee 110110:
