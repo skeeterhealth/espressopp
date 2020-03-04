@@ -61,7 +61,7 @@ type TextualMatching struct {
 	Term2 *TextualTerm `@@`
 }
 
-type MathOperation struct {
+type Mathematics struct {
     Pos   lexer.Position
     Term1 NumericTerm `@@`
     Op    string      `@("plus" | "minus" | "mul" | "div")`
@@ -81,7 +81,7 @@ type Expression struct {
 	Comparison      *Comparison      `| @@`
 	NumericRange    *NumericRange    `| @@`
 	TextualMatching *TextualMatching `| @@`
-	MathOperation   *MathOperation   `| @@`
+	Mathematics     *Mathematics     `| @@`
 	Is              *Is              `| @@`
 	ParenExpression *ParenExpression `| @@`
 }
