@@ -4,7 +4,7 @@
  * @copyright 2020 <a href="skeeterhealth.com">Skeeter</a>
  */
 
-package espressopp_test
+package espressopp
 
 import (
 	"strings"
@@ -13,17 +13,10 @@ import (
 	"gitlab.com/skeeterhealth/espressopp"
 )
 
-// Input-result data.
-type parserTestDataItem struct {
-	input    string                           // Espresso++ expression
-	result   func(*espressopp.Grammar) string // Espresso++ expression generated from grammar
-	hasError bool                             // parser returned error
-}
-
 // Test case for sql generator.
 func TestParse(t *testing.T) {
 
-	dataItems := []parserTestDataItem{
+	dataItems := []testDataItem{
 		{"ident eq 10", equality, false},
 		/*
 			{"ident eq 'test'", "ident = 'text'", false},
@@ -63,11 +56,11 @@ func TestParse(t *testing.T) {
 		*/
 	}
 
-	parser := espressopp.NewParser()
+	parser := espressopp.newParser()
 
 	for _, item := range dataItems {
 		r := strings.NewReader(item.input)
-		err, grammar := parser.Parse(r)
+		err, grammar := parser.parse(r)
 
 		result := item.result(grammar)
 
