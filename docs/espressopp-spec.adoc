@@ -162,14 +162,16 @@ bool                    = "true" | "false" .
 
 Query                   = Expression { Expression } .
 
-Expression              = Equality
+Expression              =
+                        ( Equality
                         | Comparison
                         | NumericRange
                         | TextualMatching
                         | Mathematics
                         | Is
-                        | ParenExpression .
-ParenExpression         = ( "and" | "or" ) [ "not" ] "(" Expression ")" .
+                        | ParenExpression
+                        ) [ "and" | "or" ] [ "not" ] .
+ParenExpression         = "(" Expression ")" .
 
 Term                    = identifier | int | float | string | bool .
 NumericTerm             = identifier | int | float .
