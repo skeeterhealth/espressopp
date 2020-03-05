@@ -76,11 +76,11 @@ type Expression struct {
 	Mathematics     *Mathematics     `| @@`
 	Is              *Is              `| @@`
 	ParenExpression *ParenExpression `| @@`
+	Op1             *string          `@("and" | "or")?`
+	Op2             *string          `@("not")?`
 }
 
 type ParenExpression struct {
-	Op1        string      `@("and" | "or")`
-	Op2        string      `@("not")?`
 	Expression *Expression `"(" @@ ")"`
 }
 
