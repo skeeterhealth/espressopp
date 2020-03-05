@@ -1,0 +1,14 @@
+/**
+ * @begin 5-Mar-2020
+ * @author <a href="mailto:giuseppe.greco@skeeterhealth.com">Giuseppe Greco</a>
+ * @copyright 2020 <a href="skeeterhealth.com">Skeeter</a>
+ */
+
+package espressopp
+
+// testDataItem defines test data.
+type testDataItem struct {
+	input    string // input data
+	result   string // test result
+	hasError bool   // whether the test returned an error
+}
