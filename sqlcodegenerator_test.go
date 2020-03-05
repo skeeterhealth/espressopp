@@ -10,16 +10,14 @@ import (
 	"bytes"
 	"strings"
 	"testing"
-
-	"gitlab.com/skeeterhealth/espressopp"
 )
 
 // TestGenerateSql tests the generation of SQL from Espresso++ expressions.
 func TestGenerateSql(t *testing.T) {
-	interpreter := espressopp.NewEspressoppInterpreter()
-	codeGenerator := espressopp.NewSqlCodeGenerator()
+	interpreter := NewEspressoppInterpreter()
+	codeGenerator := NewSqlCodeGenerator()
 
-	for _, item := range  getTestdataItems() {
+	for _, item := range getTestDataItems() {
 		r := strings.NewReader(item.input)
 		w := new(bytes.Buffer)
 		err := interpreter.Accept(codeGenerator, r, w)

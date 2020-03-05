@@ -16,7 +16,7 @@ type testDataItem struct {
 // getTestDataItems returns an array of testDataItem structs with predefined
 // test data.
 func getTestDataItems() []testDataItem {
-    return []testDataItem{
+	return []testDataItem{
 		{"ident eq 10", "ident = 10", false},
 		{"ident eq 'test'", "ident = 'text'", false},
 		{"ident neq 10", "ident <> 10", false},
@@ -53,4 +53,4 @@ func getTestDataItems() []testDataItem {
 		{"ident lt (#now minus #duration('PT2H'))", "ident < (SYSDATE - INTERVAL) '2' HOUR", false},
 		{"ident lt (#now plus #duration('PT2H'))", "ident < (SYSDATE + INTERVAL) '2' HOUR", false},
 	}
-}	
+}

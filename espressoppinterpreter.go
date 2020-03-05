@@ -11,13 +11,13 @@ import "io"
 // EspressoppInterpreter is the Interpreter implementation that provides
 // functionality for parsing Espresso++ expressions.
 type EspressoppInterpreter struct {
-	parser *Parser
+	parser *parser
 }
 
 // NewEspressoppInterpreter creates a new instance of EspressoppInterpreter.
 func NewEspressoppInterpreter() Interpreter {
 	return &EspressoppInterpreter{
-		parser: &Parser{},
+		parser: &parser{},
 	}
 }
 
