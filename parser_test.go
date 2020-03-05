@@ -8,61 +8,21 @@ package espressopp
 
 import (
 	"strings"
+	"strconv"
 	"testing"
 
 	"gitlab.com/skeeterhealth/espressopp"
 )
 
-// Test case for sql generator.
+// TestParse tests the parsing of Espresso++ expressions.
 func TestParse(t *testing.T) {
-
-	dataItems := []testDataItem{
-		{"ident eq 10", equality, false},
-		/*
-			{"ident eq 'test'", "ident = 'text'", false},
-			{"ident neq 10", "ident <> 10", false},
-			{"ident neq 'test'", "ident <> 'text'", false},
-
-			{"ident is true", "ident = 1", false},
-			{"ident is false", "ident = 0", false},
-			{"ident is null", "ident IS NULL", false},
-			{"ident is not null", "ident IS NOT NULL", false},
-			{"is ident", "ident = 1", false},
-			{"is not ident", "ident = 0", false},
-
-			{"ident gt 10", "ident > 10", false},
-			{"ident gte 10", "ident >= 10", false},
-			{"ident lt 10", "ident < 10", false},
-			{"ident lte 10", "ident <= 10", false},
-			{"ident between 1 and 10", "ident BETWEEN 1 and 10", false},
-
-			{"ident startswith 'text'", "ident LIKE 'text%'", false},
-			{"ident endswith 'text'", "ident LIKE '%text'", false},
-			{"ident contains 'text'", "ident LIKE '%text%'", false},
-
-			{"ident contains 'text'", "ident LIKE '%text%'", false},
-			{"ident contains 'text'", "ident LIKE '%text%'", false},
-			{"ident contains 'text'", "ident LIKE '%text%'", false},
-			{"ident contains 'text'", "ident LIKE '%text%'", false},
-
-			{"ident1 startswith 'text' and (ident2 eq 1 or ident2 gt 10)", "ident LIKE 'text%' AND (ident2 = 1 OR ident2 > 10)", false},
-			{"ident1 startswith 'text' or (ident2 gte 1 and ident2 lte 10)", "ident LIKE 'text%' OR (ident2 >= 1 AND ident2 <= 10)", false},
-			{"ident1 startswith 'text' and not (ident2 eq 1 or ident2 gt 10)", "ident LIKE 'text%' AND NOT(ident2 = 1 OR ident2 > 10)", false},
-			{"ident1 startswith 'text' or not (ident2 gte 1 and ident2 lte 10)", "ident LIKE 'text%' OR NOT (ident2 >= 1 AND ident2 <= 10)", false},
-
-			{"ident eq #today", "ident >= TRUNC(SYSDATE) AND ident < TRUNC(SYSDATE) + 1)", false},
-			{"ident lt (#now minus #duration('PT2H'))", "ident < (SYSDATE - INTERVAL) '2' HOUR", false},
-			{"ident lt (#now plus #duration('PT2H'))", "ident < (SYSDATE + INTERVAL) '2' HOUR", false},
-		*/
-	}
-
 	parser := espressopp.newParser()
 
-	for _, item := range dataItems {
+	for _, item := range getTestdataItems() {
 		r := strings.NewReader(item.input)
 		err, grammar := parser.parse(r)
 
-		result := item.result(grammar)
+		result := emitExpressions(grammar)
 
 		if item.hasError {
 			if err == nil {
@@ -80,6 +40,101 @@ func TestParse(t *testing.T) {
 	}
 }
 
-func equality(g *espressopp.Grammar) string {
-	return "ident = 10"
+// emitExpressions renders the expressions in g.
+func emitExpressions(g *espressopp.Grammar) string {
+    var sb strings.Builder
+    
+    for i, expression := range g.Expressions {
+        if espression.Op1 != null {
+            sb.WriteString(expression.Op1)
+            sb.WriteString(" ")
+        }
+        
+        if espression.Op2 != null {
+            sb.WriteString(expression.Op2)
+            sb.WriteString(" ")
+        }
+        
+        if expression.Equality != nil {
+            sb.WriteString(emitEquality(expression.Equality))
+        } else if expression.Comparison != nil {
+            sb.WriteString(emitEquality(expression.Comparison))
+        } else if expression.NumericRange != nil {
+            sb.WriteString(emitEquality(expression.NumericRange))
+        } else if expression.TextualMatching != nil {
+            sb.WriteString(emitEquality(expression.TextualMatching))
+        } else if expression.Mathematics != nil {
+            sb.WriteString(emitEquality(expression.Mathematics))
+        } else if expression.Is != nil {
+            sb.WriteString(emitEquality(expression.Is))
+        } else if expression.ParenExpression != nil {
+            sb.WriteString(emitEquality(expression.ParenExpression))
+        }
+        
+        sb.WriteString(" ")
+    }
+    
+    return strings.Trim(sb.String())
+}
+
+// emitEquality renders e.
+func emitEquality(e *Equality) string {
+    var t1 string
+    var t2 string
+    
+    if e.Term1.Identifier != null {
+        t1 = e.Term1.Identifier
+    } else if e.Term1.Integer != null {
+        t1 = strconv.Itoa(e.Term1.Integer)
+    } else if e.Term1.Deciaml != null {
+        t1 = strconv.FormatFloat(e.Term1.Deciaml, 'f', -1, 64)
+    } else if e.Term1.String != null {
+        t1 = e.Term1.String
+    } else if e.Term1.Bool != null {
+        t1 = strconv.FormatBool(e.Term1.Bool)
+    }
+    
+    if e.Term2.Identifier != null {
+        t1 = e.Term2.Identifier
+    } else if e.Term2.Integer != null {
+        t1 = strconv.Itoa(e.Term2.Integer)
+    } else if e.Term2.Deciaml != null {
+        t1 = strconv.FormatFloat(e.Term2.Deciaml, 'f', -1, 64)
+    } else if e.Term2.String != null {
+        t1 = e.Term2.String
+    } else if e.Term2.Bool != null {
+        t1 = strconv.FormatBool(e.Term2.Bool)
+    }
+    
+    return fmt.Sprintf("%s % %", t1, e.Op, t2)
+}
+
+// emitComparison renders c.
+func emitComparison(c *Comparison) string {
+    
+}
+
+// emitNumericRange renders n.
+func emitNumericRange(n *NumericRange) string {
+    
+}
+
+// emitTextualMatching renders t.
+func emitTextualMatching(t *TextualMatching) string {
+    
+}
+
+// emitMathematics renders m.
+func emitMathematics(m *Mathematics) string {
+    
+}
+
+// emitIs renders i.
+func emitIs(i *Is) string {
+    
+}
+
+// emitParenExpression renders p.
+func emitParenExpression(p * ParenExpression) {
+    
 }
