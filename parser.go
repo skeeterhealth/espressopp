@@ -18,7 +18,7 @@ type Term struct {
 	Integer    *int     `| @Int`
 	Decimal    *float64 `| @Float`
 	String     *string  `| @String`
-	Bool       *bool    `| @("true" | "false")`
+	Bool       *string  `| @("true" | "false")`
 }
 
 type NumericTerm struct {
