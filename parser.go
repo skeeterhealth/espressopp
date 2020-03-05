@@ -14,7 +14,7 @@ import (
 )
 
 type Term struct {
-	Identifier string   `  @Ident`
+	Identifier *string  `  @Ident`
 	Integer    *int     `| @Int`
 	Decimal    *float64 `| @Float`
 	String     *string  `| @String`
@@ -22,13 +22,13 @@ type Term struct {
 }
 
 type NumericTerm struct {
-	Identifier string   `  @Ident`
+	Identifier *string  `  @Ident`
 	Integer    *int     `| @Int`
 	Decimal    *float64 `| @Float`
 }
 
 type TextualTerm struct {
-	Identifier string  `  @Ident`
+	Identifier *string `  @Ident`
 	String     *string `| @String`
 }
 
@@ -63,9 +63,9 @@ type Mathematics struct {
 }
 
 type Is struct {
-	Ident string `@Ident?`
-	Op    string `"is" @("not")?`
-	Value string `@("true" | "false" | "null") | @Ident`
+	Ident *string `@Ident?`
+	Op    *string `"is" @("not")?`
+	Value  string `@("true" | "false" | "null") | @Ident`
 }
 
 type Expression struct {
@@ -90,28 +90,28 @@ type Grammar struct {
 	Expressions []*Expression `@@+`
 }
 
-// Parser is the part of an interpreter that attaches meaning by classifying strings
+// parser is the part of an interpreter that attaches meaning by classifying strings
 // of tokens from the input Espresso++ expression as particular non-terminals
 // and by building the parse tree.
-type Parser struct {
+type parser struct {
 }
 
-// NewParser creates a new instance of Parser..
-func NewParser() *Parser {
-	return &Parser{}
+// newParser creates a new instance of parser.
+func newParser() *parser {
+	return &parser{}
 }
 
-// Parse parses the Espresso++ expressions in r and returns the resulting grammar.
-func (p *Parser) Parse(r io.Reader) (error, *Grammar) {
-	parser := participle.MustBuild(&Grammar{}, participle.UseLookahead(2))
+// parse parses the Espresso++ expressions in r and returns the resulting grammar.
+func (p *parser) parse(r io.Reader) (error, *Grammar) {
+	pp := participle.MustBuild(&Grammar{}, participle.UseLookahead(2))
 
 	grammar := &Grammar{}
-	err := parser.Parse(r, grammar)
+	err := pp.Parse(r, grammar)
 
 	return err, grammar
 }
 
-// String returns a string representation of g.
-func (p *Parser) String(g *Grammar) string {
+// toString returns a string representation of g.
+func (p *parser) toString(g *Grammar) string {
 	return repr.String(g, repr.Hide(&lexer.Position{}))
 }
