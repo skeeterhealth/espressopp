@@ -14,22 +14,22 @@ import (
 )
 
 type Term struct {
-	Identifier string  `  @Ident`
-	Integer    int     `| @Int`
-	Decimal    float64 `| @Float`
-	String     string  `| @String`
-	Bool       bool    `| @("true" | "false")`
+	Identifier string   `  @Ident`
+	Integer    *int     `| @Int`
+	Decimal    *float64 `| @Float`
+	String     *string  `| @String`
+	Bool       *bool    `| @("true" | "false")`
 }
 
 type NumericTerm struct {
-	Identifier string  `  @Ident`
-	Integer    int     `| @Int`
-	Decimal    float64 `| @Float`
+	Identifier string   `  @Ident`
+	Integer    *int     `| @Int`
+	Decimal    *float64 `| @Float`
 }
 
 type TextualTerm struct {
-	Identifier string `  @Ident`
-	String     string `| @String`
+	Identifier string  `  @Ident`
+	String     *string `| @String`
 }
 
 type Equality struct {
