@@ -4,7 +4,7 @@
  * @copyright 2020 <a href="skeeterhealth.com">Skeeter</a>
  */
 
-package espressopp_test
+package espressopp
 
 import (
 	"bytes"
@@ -14,17 +14,10 @@ import (
 	"gitlab.com/skeeterhealth/espressopp"
 )
 
-// Input-result data.
-type sqlCodeGeneratorTestDataItem struct {
-	input    string // Espresso++ expression
-	result   string // generated sql
-	hasError bool   // code generator returned error
-}
-
 // Test case for sql generator.
 func TestGenerateSql(t *testing.T) {
 
-	dataItems := []sqlCodeGeneratorTestDataItem{
+	dataItems := []testDataItem{
 		{"ident eq 10", "ident = 10", false},
 		{"ident eq 'test'", "ident = 'text'", false},
 		{"ident neq 10", "ident <> 10", false},
