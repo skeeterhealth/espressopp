@@ -20,7 +20,7 @@ OUTDIR := ${CURDIR}/out
 MAKE_OUTDIR = $(shell mkdir -p $(OUTDIR))
 
 # create test directory
-TSTDIR := ${CURDIR}/out/test
+TSTDIR := ${OUTDIR}/test
 MAKE_TSTDIR = $(shell mkdir -p $(TSTDIR))
 
 # create bin directory
@@ -28,7 +28,7 @@ BINDIR := $(GOPATH)/bin
 MAKE_BINDIR = $(shell mkdir -p $(BINDIR))
 
 # current timestamp
-TIMESTAMP := $$(date +%Y%m%d%H%M%S)
+TIMESTAMP := $(shell date +%Y%m%d%H%M%S)
 
 .PHONY: all get-tools init build clean test install uninstall docs docs-html docs-pdf fmt simplify check
 
@@ -49,7 +49,7 @@ build: init $(MAKE_OUTDIR)
 clean:
 	@rm -rf $(OUTDIR)
 
-test: get-tools $(MAKE_TSTDIR)
+test: $(MAKE_TSTDIR)
 	$(eval FILENAME := cover_$$(TIMESTAMP))
 	@-go test -coverprofile=$(TSTDIR)/$(FILENAME).txt .
 ifeq (, $(wildcard $(TSTDIR)/$(FILENAME).txt))
