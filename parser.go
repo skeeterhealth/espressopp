@@ -69,6 +69,8 @@ type Is struct {
 }
 
 type Expression struct {
+    Op1             *string          `@("and" | "or")?`
+	Op2             *string          `@("not")?`
 	Equality        *Equality        `  @@`
 	Comparison      *Comparison      `| @@`
 	NumericRange    *NumericRange    `| @@`
@@ -76,8 +78,6 @@ type Expression struct {
 	Mathematics     *Mathematics     `| @@`
 	Is              *Is              `| @@`
 	ParenExpression *ParenExpression `| @@`
-	Op1             *string          `@("and" | "or")?`
-	Op2             *string          `@("not")?`
 }
 
 type ParenExpression struct {
