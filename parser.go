@@ -65,11 +65,11 @@ type Mathematics struct {
 type Is struct {
 	Ident *string `@Ident?`
 	Op    *string `"is" @("not")?`
-	Value  string `@("true" | "false" | "null") | @Ident`
+	Value string  `@("true" | "false" | "null") | @Ident`
 }
 
 type Expression struct {
-    Op1             *string          `@("and" | "or")?`
+	Op1             *string          `@("and" | "or")?`
 	Op2             *string          `@("not")?`
 	Equality        *Equality        `  @@`
 	Comparison      *Comparison      `| @@`
