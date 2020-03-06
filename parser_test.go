@@ -21,7 +21,7 @@ func TestParse(t *testing.T) {
 		r := strings.NewReader(item.input)
 		err, grammar := parser.parse(r)
 
-		result := emitExpressions(grammar)
+		result := emitGrammar(grammar)
 
 		if item.hasError {
 			if err == nil {
@@ -39,41 +39,42 @@ func TestParse(t *testing.T) {
 	}
 }
 
-// emitExpressions renders the expressions in g.
-func emitExpressions(g *Grammar) string {
+// emitGrammars renders the expressions in g.
+func emitGrammar(g *Grammar) string {
 	var sb strings.Builder
 
-	for _, expression := range g.Expressions {
-		if expression.Op1 != nil {
-			sb.WriteString(*expression.Op1)
-			sb.WriteString(" ")
-		}
-
-		if expression.Op2 != nil {
-			sb.WriteString(*expression.Op2)
-			sb.WriteString(" ")
-		}
-
-		if expression.Equality != nil {
-			sb.WriteString(emitEquality(expression.Equality))
-		} else if expression.Comparison != nil {
-			sb.WriteString(emitComparison(expression.Comparison))
-		} else if expression.NumericRange != nil {
-			sb.WriteString(emitNumericRange(expression.NumericRange))
-		} else if expression.TextualMatching != nil {
-			sb.WriteString(emitTextualMatching(expression.TextualMatching))
-		} else if expression.Mathematics != nil {
-			sb.WriteString(emitMathematics(expression.Mathematics))
-		} else if expression.Is != nil {
-			sb.WriteString(emitIs(expression.Is))
-		} else if expression.ParenExpression != nil {
-			sb.WriteString(emitParenExpression(expression.ParenExpression))
-		}
-
-		sb.WriteString(" ")
+	for _, e := range g.Expressions {
+		sb.WriteString(emitExpression(e))
 	}
 
-	return strings.Trim(sb.String(), " ")
+	return sb.String()
+}
+
+// emitExpression renders e.
+func emitExpression(e *Expression) string {
+	var s string
+
+	if e.Op != nil {
+		s = fmt.Sprintf(" %s ", *e.Op)
+	} else if e.Not {
+		s = "not "
+	} else if e.Paren != nil {
+		s = *e.Paren
+	} else if e.Equality != nil {
+		s = emitEquality(e.Equality)
+	} else if e.Comparison != nil {
+		s = emitComparison(e.Comparison)
+	} else if e.NumericRange != nil {
+		s = emitNumericRange(e.NumericRange)
+	} else if e.TextualMatching != nil {
+		s = emitTextualMatching(e.TextualMatching)
+	} else if e.Mathematics != nil {
+		s = emitMathematics(e.Mathematics)
+	} else if e.Is != nil {
+		s = emitIs(e.Is)
+	}
+
+	return s
 }
 
 // emitEquality renders e.
@@ -134,41 +135,99 @@ func emitComparison(c *Comparison) string {
 
 // emitNumericRange renders n.
 func emitNumericRange(n *NumericRange) string {
-	return ""
+	var t1 string
+	var t2 string
+	var t3 string
+
+	if n.Term1.Identifier != nil {
+		t1 = *n.Term1.Identifier
+	} else if n.Term1.Integer != nil {
+		t1 = strconv.Itoa(*n.Term1.Integer)
+	} else if n.Term1.Decimal != nil {
+		t1 = strconv.FormatFloat(*n.Term1.Decimal, 'f', -1, 64)
+	}
+
+	if n.Term2.Identifier != nil {
+		t2 = *n.Term2.Identifier
+	} else if n.Term2.Integer != nil {
+		t2 = strconv.Itoa(*n.Term2.Integer)
+	} else if n.Term2.Decimal != nil {
+		t2 = strconv.FormatFloat(*n.Term2.Decimal, 'f', -1, 64)
+	}
+
+	if n.Term3.Identifier != nil {
+		t3 = *n.Term3.Identifier
+	} else if n.Term3.Integer != nil {
+		t3 = strconv.Itoa(*n.Term3.Integer)
+	} else if n.Term2.Decimal != nil {
+		t3 = strconv.FormatFloat(*n.Term3.Decimal, 'f', -1, 64)
+	}
+
+	return fmt.Sprintf("%s between %s and %s", t1, t2, t3)
 }
 
 // emitTextualMatching renders t.
 func emitTextualMatching(t *TextualMatching) string {
-	return ""
+	var t1 string
+	var t2 string
+
+	if t.Term1.Identifier != nil {
+		t1 = *t.Term1.Identifier
+	} else if t.Term1.String != nil {
+		t1 = fmt.Sprintf("'%s'", *t.Term1.String)
+	}
+
+	if t.Term2.Identifier != nil {
+		t2 = *t.Term2.Identifier
+	} else if t.Term2.String != nil {
+		t2 = fmt.Sprintf("'%s'", *t.Term2.String)
+	}
+
+	return fmt.Sprintf("%s %s %s", t1, t.Op, t2)
 }
 
 // emitMathematics renders m.
 func emitMathematics(m *Mathematics) string {
-	return ""
+	var t1 string
+	var t2 string
+
+	if m.Term1.Identifier != nil {
+		t1 = *m.Term1.Identifier
+	} else if m.Term1.Integer != nil {
+		t1 = strconv.Itoa(*m.Term1.Integer)
+	} else if m.Term1.Decimal != nil {
+		t1 = strconv.FormatFloat(*m.Term1.Decimal, 'f', -1, 64)
+	}
+
+	if m.Term2.Identifier != nil {
+		t2 = *m.Term2.Identifier
+	} else if m.Term2.Integer != nil {
+		t2 = strconv.Itoa(*m.Term2.Integer)
+	} else if m.Term2.Decimal != nil {
+		t2 = strconv.FormatFloat(*m.Term2.Decimal, 'f', -1, 64)
+	}
+
+	return fmt.Sprintf("%s %s %s", t1, m.Op, t2)
 }
 
 // emitIs renders i.
 func emitIs(i *Is) string {
 	var sb strings.Builder
 
-	if i.Ident != nil {
-		sb.WriteString(*i.Ident)
+	if i.IsWithExplicitValue != nil {
+		sb.WriteString(i.IsWithExplicitValue.Ident)
+		sb.WriteString(" is ")
+		if i.IsWithExplicitValue.Not {
+			sb.WriteString("not ")
+		}
+		sb.WriteString(i.IsWithExplicitValue.Value)
+	} else if i.IsWithImplicitValue != nil {
+		sb.WriteString("is ")
+		if i.IsWithImplicitValue.Not {
+			sb.WriteString("not ")
+		}
+		sb.WriteString(i.IsWithImplicitValue.Ident)
 	}
-
-	sb.WriteString(" is")
-
-	if i.Op != nil {
-		sb.WriteString(" ")
-		sb.WriteString(*i.Op)
-	}
-
-	sb.WriteString(" ")
-	sb.WriteString(i.Value)
 
 	return sb.String()
-}
-
-// emitParenExpression renders p.
-func emitParenExpression(p *ParenExpression) string {
-	return ""
 }
