@@ -14,7 +14,8 @@ import (
 )
 
 type Term struct {
-	Identifier *string  `  @("#")? @Ident`
+	Identifier *string  `  @Ident`
+	Macro      *string  `| @("#") @Ident`
 	Integer    *int     `| @Int`
 	Decimal    *float64 `| @Float`
 	String     *string  `| @String`
@@ -22,13 +23,15 @@ type Term struct {
 }
 
 type NumericTerm struct {
-	Identifier *string  `  @("#")? @Ident`
+	Identifier *string  `  @Ident`
+	Macro      *string  `| @("#") @Ident`
 	Integer    *int     `| @Int`
 	Decimal    *float64 `| @Float`
 }
 
 type TextualTerm struct {
-	Identifier *string `  @("#")? @Ident`
+	Identifier *string `  @Ident`
+	Macro      *string `| @("#") @Ident`
 	String     *string `| @String`
 }
 
