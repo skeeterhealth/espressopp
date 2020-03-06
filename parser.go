@@ -14,7 +14,7 @@ import (
 )
 
 type Term struct {
-	Identifier *string  `  @Ident`
+	Identifier *string  `  @("#")? @Ident`
 	Integer    *int     `| @Int`
 	Decimal    *float64 `| @Float`
 	String     *string  `| @String`
@@ -22,13 +22,13 @@ type Term struct {
 }
 
 type NumericTerm struct {
-	Identifier *string  `  @Ident`
+	Identifier *string  `  @("#")? @Ident`
 	Integer    *int     `| @Int`
 	Decimal    *float64 `| @Float`
 }
 
 type TextualTerm struct {
-	Identifier *string `  @Ident`
+	Identifier *string `  @("#")? @Ident`
 	String     *string `| @String`
 }
 
@@ -57,31 +57,37 @@ type TextualMatching struct {
 }
 
 type Mathematics struct {
-	Term1 NumericTerm `@@`
-	Op    string      `@("plus" | "minus" | "mul" | "div")`
-	Term2 NumericTerm `@@`
+	Term1 *NumericTerm `@@`
+	Op    string       `@("plus" | "minus" | "mul" | "div")`
+	Term2 *NumericTerm `@@`
 }
 
 type Is struct {
-	Ident *string `@Ident?`
-	Op    *string `"is" @("not")?`
-	Value string  `@("true" | "false" | "null") | @Ident`
+	IsWithExplicitValue *IsWithExplicitValue `  @@`
+	IsWithImplicitValue *IsWithImplicitValue `| @@`
+}
+
+type IsWithExplicitValue struct {
+	Ident string `@Ident`
+	Not   bool   `"is" @("not")?`
+	Value string `@("true" | "false" | "null")`
+}
+
+type IsWithImplicitValue struct {
+	Not   bool   `"is" @("not")?`
+	Ident string `@Ident`
 }
 
 type Expression struct {
-	Op1             *string          `@("and" | "or")?`
-	Op2             *string          `@("not")?`
-	Equality        *Equality        `  @@`
+	Not             bool             `  @("not")`
+	Op              *string          `| @("and" | "or")`
+	Paren           *string          `| @("(" | ")")`
+	Equality        *Equality        `| @@`
 	Comparison      *Comparison      `| @@`
 	NumericRange    *NumericRange    `| @@`
 	TextualMatching *TextualMatching `| @@`
 	Mathematics     *Mathematics     `| @@`
 	Is              *Is              `| @@`
-	ParenExpression *ParenExpression `| @@`
-}
-
-type ParenExpression struct {
-	Expression *Expression `"(" @@ ")"`
 }
 
 // Grammar is the set of structural rules that govern the composition of an
@@ -111,7 +117,7 @@ func (p *parser) parse(r io.Reader) (error, *Grammar) {
 	return err, grammar
 }
 
-// toString returns a string representation of g.
-func (p *parser) toString(g *Grammar) string {
+// string returns a string representation of g.
+func (p *parser) string(g *Grammar) string {
 	return repr.String(g, repr.Hide(&lexer.Position{}))
 }
