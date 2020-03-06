@@ -84,6 +84,8 @@ func emitEquality(e *Equality) string {
 
 	if e.Term1.Identifier != nil {
 		t1 = *e.Term1.Identifier
+	} else if e.Term1.Macro != nil {
+		t1 = *e.Term1.Macro
 	} else if e.Term1.Integer != nil {
 		t1 = strconv.Itoa(*e.Term1.Integer)
 	} else if e.Term1.Decimal != nil {
@@ -96,6 +98,8 @@ func emitEquality(e *Equality) string {
 
 	if e.Term2.Identifier != nil {
 		t2 = *e.Term2.Identifier
+	} else if e.Term2.Macro != nil {
+		t2 = *e.Term2.Macro
 	} else if e.Term2.Integer != nil {
 		t2 = strconv.Itoa(*e.Term2.Integer)
 	} else if e.Term2.Decimal != nil {
@@ -116,6 +120,8 @@ func emitComparison(c *Comparison) string {
 
 	if c.Term1.Identifier != nil {
 		t1 = *c.Term1.Identifier
+	} else if c.Term1.Macro != nil {
+		t1 = *c.Term1.Macro
 	} else if c.Term1.Integer != nil {
 		t1 = strconv.Itoa(*c.Term1.Integer)
 	} else if c.Term1.Decimal != nil {
@@ -124,6 +130,8 @@ func emitComparison(c *Comparison) string {
 
 	if c.Term2.Identifier != nil {
 		t2 = *c.Term2.Identifier
+	} else if c.Term2.Macro != nil {
+		t2 = *c.Term2.Macro
 	} else if c.Term2.Integer != nil {
 		t2 = strconv.Itoa(*c.Term2.Integer)
 	} else if c.Term2.Decimal != nil {
@@ -141,6 +149,8 @@ func emitNumericRange(n *NumericRange) string {
 
 	if n.Term1.Identifier != nil {
 		t1 = *n.Term1.Identifier
+	} else if n.Term1.Macro != nil {
+		t1 = *n.Term1.Macro
 	} else if n.Term1.Integer != nil {
 		t1 = strconv.Itoa(*n.Term1.Integer)
 	} else if n.Term1.Decimal != nil {
@@ -149,6 +159,8 @@ func emitNumericRange(n *NumericRange) string {
 
 	if n.Term2.Identifier != nil {
 		t2 = *n.Term2.Identifier
+	} else if n.Term2.Macro != nil {
+		t2 = *n.Term2.Macro
 	} else if n.Term2.Integer != nil {
 		t2 = strconv.Itoa(*n.Term2.Integer)
 	} else if n.Term2.Decimal != nil {
@@ -157,9 +169,11 @@ func emitNumericRange(n *NumericRange) string {
 
 	if n.Term3.Identifier != nil {
 		t3 = *n.Term3.Identifier
+	} else if n.Term3.Macro != nil {
+		t3 = *n.Term3.Macro
 	} else if n.Term3.Integer != nil {
 		t3 = strconv.Itoa(*n.Term3.Integer)
-	} else if n.Term2.Decimal != nil {
+	} else if n.Term3.Decimal != nil {
 		t3 = strconv.FormatFloat(*n.Term3.Decimal, 'f', -1, 64)
 	}
 
@@ -173,12 +187,16 @@ func emitTextualMatching(t *TextualMatching) string {
 
 	if t.Term1.Identifier != nil {
 		t1 = *t.Term1.Identifier
+	} else if t.Term1.Macro != nil {
+		t1 = *t.Term1.Macro
 	} else if t.Term1.String != nil {
 		t1 = fmt.Sprintf("'%s'", *t.Term1.String)
 	}
 
 	if t.Term2.Identifier != nil {
 		t2 = *t.Term2.Identifier
+	} else if t.Term2.Macro != nil {
+		t2 = *t.Term2.Macro
 	} else if t.Term2.String != nil {
 		t2 = fmt.Sprintf("'%s'", *t.Term2.String)
 	}
@@ -193,6 +211,8 @@ func emitMathematics(m *Mathematics) string {
 
 	if m.Term1.Identifier != nil {
 		t1 = *m.Term1.Identifier
+	} else if m.Term1.Macro != nil {
+		t1 = *m.Term1.Macro
 	} else if m.Term1.Integer != nil {
 		t1 = strconv.Itoa(*m.Term1.Integer)
 	} else if m.Term1.Decimal != nil {
@@ -201,6 +221,8 @@ func emitMathematics(m *Mathematics) string {
 
 	if m.Term2.Identifier != nil {
 		t2 = *m.Term2.Identifier
+	} else if m.Term2.Macro != nil {
+		t2 = *m.Term2.Macro
 	} else if m.Term2.Integer != nil {
 		t2 = strconv.Itoa(*m.Term2.Integer)
 	} else if m.Term2.Decimal != nil {
