@@ -44,6 +44,11 @@ func getTestDataItems() []testDataItem {
 		{"ident contains 'text'", "ident LIKE '%text%'", false},
 		{"ident contains 'text'", "ident LIKE '%text%'", false},
 
+		{"ident plus 1", "ident + 1", false},
+		{"ident minus 1", "ident - 1", false},
+		{"ident mul 1", "ident * 1", false},
+		{"ident div 1", "ident / 1", false},
+
 		{"ident1 startswith 'text' and (ident2 eq 1 or ident2 gt 10)", "ident LIKE 'text%' AND (ident2 = 1 OR ident2 > 10)", false},
 		{"ident1 startswith 'text' or (ident2 gte 1 and ident2 lte 10)", "ident LIKE 'text%' OR (ident2 >= 1 AND ident2 <= 10)", false},
 		{"ident1 startswith 'text' and not (ident2 eq 1 or ident2 gt 10)", "ident LIKE 'text%' AND NOT(ident2 = 1 OR ident2 > 10)", false},
