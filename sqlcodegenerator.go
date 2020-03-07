@@ -16,7 +16,9 @@ type SqlCodeGenerator struct {
 
 // NewSqlCodeGenerator creates a new instance of SqlCodeGenerator.
 func NewSqlCodeGenerator() CodeGenerator {
-	return &SqlCodeGenerator{}
+	return &SqlCodeGenerator{
+		fieldNames: make(map[string]string),
+	}
 }
 
 // Visit lets cg access the functionality provided by i to parse the Espresso++
@@ -31,5 +33,13 @@ func (cg *SqlCodeGenerator) Visit(i Interpreter, r io.Reader, w io.Writer) error
 // those fields in the input expression that do not match the field names of the
 // underlying database. If m is nil, then no mapping is applied.
 func (cg *SqlCodeGenerator) MapFieldNames(m map[string]string) {
-	cg.fieldNames = m
+	if m == nil {
+		if len(cg.fieldNames) > 0 {
+			for fn := range cg.fieldNames {
+				delete(cg.fieldNames, fn)
+			}
+		}
+	} else {
+		cg.fieldNames = m
+	}
 }
