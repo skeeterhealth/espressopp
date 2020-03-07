@@ -13,26 +13,23 @@ import (
 	"io"
 )
 
+type Macro struct {
+	Name string  `@("#") @Ident`
+	Args []*Term `("(" @@* ")")?`
+}
+
 type Term struct {
-	Identifier *string  `  @Ident`
-	Macro      *string  `| @("#") @Ident`
-	Integer    *int     `| @Int`
-	Decimal    *float64 `| @Float`
-	String     *string  `| @String`
-	Bool       *bool    `| @("true" | "false")`
+	Identifier *string    `  @Ident`
+	Integer    *int       `| @Int`
+	Decimal    *float64   `| @Float`
+	String     *string    `| @String`
+	Bool       *bool      `| @("true" | "false")`
+	Macro      *Macro     `| @@`
+	ParenTerm  *ParenTerm `| @@`
 }
 
-type NumericTerm struct {
-	Identifier *string  `  @Ident`
-	Macro      *string  `| @("#") @Ident`
-	Integer    *int     `| @Int`
-	Decimal    *float64 `| @Float`
-}
-
-type TextualTerm struct {
-	Identifier *string `  @Ident`
-	Macro      *string `| @("#") @Ident`
-	String     *string `| @String`
+type ParenTerm struct {
+	Term *Term `"(" @@ ")"`
 }
 
 type Equality struct {
@@ -42,27 +39,27 @@ type Equality struct {
 }
 
 type Comparison struct {
-	Term1 *NumericTerm `@@`
-	Op    string       `@("gt" | "gte" | "lt" | "lte")`
-	Term2 *NumericTerm `@@`
+	Term1 *Term  `@@`
+	Op    string `@("gt" | "gte" | "lt" | "lte")`
+	Term2 *Term  `@@`
 }
 
 type NumericRange struct {
-	Term1 *NumericTerm `@@ "between"`
-	Term2 *NumericTerm `@@ "and"`
-	Term3 *NumericTerm `@@`
+	Term1 *Term `@@ "between"`
+	Term2 *Term `@@ "and"`
+	Term3 *Term `@@`
 }
 
 type TextualMatching struct {
-	Term1 *TextualTerm `@@`
-	Op    string       `@("startswith" | "endswith" | "contains")`
-	Term2 *TextualTerm `@@`
+	Term1 *Term  `@@`
+	Op    string `@("startswith" | "endswith" | "contains")`
+	Term2 *Term  `@@`
 }
 
 type Mathematics struct {
-	Term1 *NumericTerm `@@`
-	Op    string       `@("plus" | "minus" | "mul" | "div")`
-	Term2 *NumericTerm `@@`
+	Term1 *Term  `@@`
+	Op    string `@("plus" | "minus" | "mul" | "div")`
+	Term2 *Term  `@@`
 }
 
 type Is struct {
@@ -81,16 +78,20 @@ type IsWithImplicitValue struct {
 	Ident string `@Ident`
 }
 
+type ParenExpression struct {
+	Not         bool          `@("not")?`
+	Expressions []*Expression `"(" @@+ ")"`
+}
+
 type Expression struct {
-	Not             bool             `  @("not")`
-	Op              *string          `| @("and" | "or")`
-	Paren           *string          `| @("(" | ")")`
+	Op              *string          `  @("and" | "or")`
 	Equality        *Equality        `| @@`
 	Comparison      *Comparison      `| @@`
 	NumericRange    *NumericRange    `| @@`
 	TextualMatching *TextualMatching `| @@`
 	Mathematics     *Mathematics     `| @@`
 	Is              *Is              `| @@`
+	ParenExpression *ParenExpression `| @@`
 }
 
 // Grammar is the set of structural rules that govern the composition of an
@@ -103,19 +104,20 @@ type Grammar struct {
 // of tokens from the input Espresso++ expression as particular non-terminals
 // and by building the parse tree.
 type parser struct {
+	p *participle.Parser
 }
 
 // newParser creates a new instance of parser.
 func newParser() *parser {
-	return &parser{}
+	return &parser{
+		p: participle.MustBuild(&Grammar{}, participle.UseLookahead(2)),
+	}
 }
 
 // parse parses the Espresso++ expressions in r and returns the resulting grammar.
 func (p *parser) parse(r io.Reader) (error, *Grammar) {
-	pp := participle.MustBuild(&Grammar{}, participle.UseLookahead(2))
-
 	grammar := &Grammar{}
-	err := pp.Parse(r, grammar)
+	err := p.p.Parse(r, grammar)
 
 	return err, grammar
 }
