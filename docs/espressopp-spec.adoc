@@ -162,29 +162,29 @@ bool                    = "true" | "false" .
 
 Query                   = Expression { Expression } .
 
-Expression              = [ "and" | "or" ] [ "not" ]
-                        ( Equality
+Expression              = "and" | "or"
+                        | Equality
                         | Comparison
                         | NumericRange
                         | TextualMatching
                         | Mathematics
                         | Is
-                        | ParenExpression ) .
-ParenExpression         = "(" Expression ")" .
+                        | ParenExpression .
+ParenExpression         = [ "not" ] "(" Expression { Espression } ")" .
 
-Term                    = identifier | int | float | string | bool .
-NumericTerm             = identifier | int | float .
-TextualTerm             = identifier | string .
+Term                    = identifier | int | float | string | bool | Macro | ParenTerm .
+ParenTerm               = "(" Term ")"
+Macro                   = "#" identifier [ "(" Term { Term } ")" ] .
 
 Equality                = Term ( "eq" | "neq" ) Term .
 
-Comparison              = NumericTerm ( "gt" | "gte" | "lt" | "lte" ) NumericTerm .
+Comparison              = Term ( "gt" | "gte" | "lt" | "lte" ) Term .
 
-NumericRange            = NumericTerm "between" NumericTerm "and" NumericTerm .
+NumericRange            = Term "between" NumericTerm "and" Term .
 
-TextualMatching         = TextualTerm ( "startswith" | "endswith" | "contains" ) TextualTerm .
+TextualMatching         = Term ( "startswith" | "endswith" | "contains" ) Term .
 
-Mathematics             = NumericTerm ( "plus" | "minus" | "mul" | "div" ) NumericTerm .
+Mathematics             = Term ( "plus" | "minus" | "mul" | "div" ) Term .
 
 Is                      = identifier "is" [ "not" ] bool
                         | "is" [ "not "] identifier
