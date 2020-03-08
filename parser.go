@@ -24,7 +24,7 @@ type Term struct {
 
 type Macro struct {
 	Name string  `@("#") @Ident`
-	Args []*Term `("(" @@* ")")?`
+	Args []*Term `("(" (@@ ("," @@)*)? ")")?`
 }
 
 type Maths struct {
