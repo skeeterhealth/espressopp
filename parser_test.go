@@ -56,60 +56,70 @@ func emitExpression(e *Expression) string {
 
 	if e.Op != nil {
 		s = fmt.Sprintf(" %s ", *e.Op)
+	} else if e.ParenExpression != nil {
+		s = emitParenExpression(e.ParenExpression)
 	} else if e.Equality != nil {
 		s = emitEquality(e.Equality)
 	} else if e.Comparison != nil {
 		s = emitComparison(e.Comparison)
-	} else if e.NumericRange != nil {
-		s = emitNumericRange(e.NumericRange)
-	} else if e.TextualMatching != nil {
-		s = emitTextualMatching(e.TextualMatching)
-	} else if e.Mathematics != nil {
-		s = emitMathematics(e.Mathematics)
+	} else if e.Range != nil {
+		s = emitRange(e.Range)
+	} else if e.Matching != nil {
+		s = emitMatching(e.Matching)
 	} else if e.Is != nil {
 		s = emitIs(e.Is)
-	} else if e.ParenExpression != nil {
-		s = emitParenExpression(e.ParenExpression)
 	}
 
 	return s
 }
 
+// emitParenExpression renders pe.
+func emitParenExpression(pe *ParenExpression) string {
+	var sb strings.Builder
+
+	if pe.Not {
+		sb.WriteString("not ")
+	}
+
+	sb.WriteString("(")
+
+	for _, e := range pe.Expressions {
+		sb.WriteString(emitExpression(e))
+	}
+
+	sb.WriteString(")")
+
+	return sb.String()
+}
+
 // emitEquality renders e.
 func emitEquality(e *Equality) string {
-	t1 := emitTerm(e.Term1)
-	t2 := emitTerm(e.Term2)
+	t1 := emitTermOrMaths(e.TermOrMaths1)
+	t2 := emitTermOrMaths(e.TermOrMaths2)
 
 	return fmt.Sprintf("%s %s %s", t1, e.Op, t2)
 }
 
 // emitComparison renders c.
 func emitComparison(c *Comparison) string {
-	t1 := emitTerm(c.Term1)
-	t2 := emitTerm(c.Term2)
-
+	fmt.Println(fmt.Sprintf("Term1 = %v", c.TermOrMaths1))
+	fmt.Println(fmt.Sprintf("Term2 = %v", c.TermOrMaths2))
+	t1 := emitTermOrMaths(c.TermOrMaths1)
+	t2 := emitTermOrMaths(c.TermOrMaths2)
 	return fmt.Sprintf("%s %s %s", t1, c.Op, t2)
 }
 
-// emitNumericRange renders n.
-func emitNumericRange(nr *NumericRange) string {
-	t1 := emitTerm(nr.Term1)
-	t2 := emitTerm(nr.Term2)
-	t3 := emitTerm(nr.Term3)
+// emitRange renders r.
+func emitRange(r *Range) string {
+	t1 := emitTermOrMaths(r.TermOrMaths1)
+	t2 := emitTermOrMaths(r.TermOrMaths2)
+	t3 := emitTermOrMaths(r.TermOrMaths3)
 
 	return fmt.Sprintf("%s between %s and %s", t1, t2, t3)
 }
 
-// emitTextualMatching renders t.
-func emitTextualMatching(tm *TextualMatching) string {
-	t1 := emitTerm(tm.Term1)
-	t2 := emitTerm(tm.Term2)
-
-	return fmt.Sprintf("%s %s %s", t1, tm.Op, t2)
-}
-
-// emitMathematics renders m.
-func emitMathematics(m *Mathematics) string {
+// emitMatching renders m.
+func emitMatching(m *Matching) string {
 	t1 := emitTerm(m.Term1)
 	t2 := emitTerm(m.Term2)
 
@@ -138,25 +148,6 @@ func emitIs(i *Is) string {
 	return sb.String()
 }
 
-// emitParenExpression renders p.
-func emitParenExpression(pe *ParenExpression) string {
-	var sb strings.Builder
-
-	if pe.Not {
-		sb.WriteString("not ")
-	}
-
-	sb.WriteString("(")
-
-	for _, e := range pe.Expressions {
-		sb.WriteString(emitExpression(e))
-	}
-
-	sb.WriteString(")")
-
-	return sb.String()
-}
-
 // emitMacro renders m.
 func emitMacro(m *Macro) string {
 	var sb strings.Builder
@@ -166,8 +157,7 @@ func emitMacro(m *Macro) string {
 	if m.Args != nil {
 		sb.WriteString("(")
 		var s string
-
-		for _, a := range m.Args {
+		for i, a := range m.Args {
 			if a.Identifier != nil {
 				s = *a.Identifier
 			} else if a.Macro != nil {
@@ -181,13 +171,25 @@ func emitMacro(m *Macro) string {
 			} else if a.Bool != nil {
 				s = strconv.FormatBool(*a.Bool)
 			}
+
+			if i > 0 {
+				sb.WriteString(", ")
+			}
+			sb.WriteString(s)
 		}
 
-		sb.WriteString(s)
 		sb.WriteString(")")
 	}
 
 	return sb.String()
+}
+
+// emitMaths renders m.
+func emitMaths(m *Maths) string {
+	t1 := emitTerm(m.Term1)
+	t2 := emitTerm(m.Term2)
+
+	return fmt.Sprintf("%s %s %s", t1, m.Op, t2)
 }
 
 // emitTerm renders t.
@@ -206,8 +208,21 @@ func emitTerm(t *Term) string {
 		s = strconv.FormatBool(*t.Bool)
 	} else if t.Macro != nil {
 		s = emitMacro(t.Macro)
-	} else if t.ParenTerm != nil {
-		s = fmt.Sprintf("(%s)", emitTerm(t.ParenTerm.Term))
+	}
+
+	return s
+}
+
+// emitTermOrMaths renders tm.
+func emitTermOrMaths(tm *TermOrMaths) string {
+	var s string
+
+	if tm.Maths != nil {
+		s = emitMaths(tm.Maths)
+	} else if tm.ParenMaths != nil {
+		s = fmt.Sprintf("(%s)", emitMaths(tm.ParenMaths))
+	} else if tm.Term != nil {
+		s = emitTerm(tm.Term)
 	}
 
 	return s
