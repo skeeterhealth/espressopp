@@ -154,41 +154,42 @@ _Grammar_ is the set of structural rules that govern the composition of statemen
 used to describe it.
 
 ```
-identifier              = . // http://golang.org/ref/spec#identifier
-int                     = . // http://golang.org/ref/spec#int_lit
-float                   = . // http://golang.org/ref/spec#float_lit
-string                  = . // http://golang.org/ref/spec#string_lit
-bool                    = "true" | "false" .
+identifier          = . // http://golang.org/ref/spec#identifier
+int                 = . // http://golang.org/ref/spec#int_lit
+float               = . // http://golang.org/ref/spec#float_lit
+string              = . // http://golang.org/ref/spec#string_lit
+bool                = "true" | "false" .
 
-Query                   = Expression { Expression } .
+Query               = Expression { Expression } .
 
-Expression              = "and" | "or"
-                        | Equality
-                        | Comparison
-                        | NumericRange
-                        | TextualMatching
-                        | Mathematics
-                        | Is
-                        | ParenExpression .
-ParenExpression         = [ "not" ] "(" Expression { Espression } ")" .
+Expression          = "and" | "or"
+                    | ParenExpression
+                    | Equality
+                    | Comparison
+                    | Range
+                    | Matching
+                    | Is .
+ParenExpression     = [ "not" ] "(" Expression { Espression } ")" .
 
-Term                    = identifier | int | float | string | bool | Macro | ParenTerm .
-ParenTerm               = "(" Term ")"
-Macro                   = "#" identifier [ "(" Term { Term } ")" ] .
+Term                = identifier | int | float | string | bool | Macro .
 
-Equality                = Term ( "eq" | "neq" ) Term .
+Macro               = "#" identifier [ "(" Term { "," Term } ")" ] .
 
-Comparison              = Term ( "gt" | "gte" | "lt" | "lte" ) Term .
+Maths               = Term ( "plus" | "minus" | "mul" | "div" ) Term .
 
-NumericRange            = Term "between" NumericTerm "and" Term .
+TermOrMaths         = ( Maths | "(" Maths ")" | Term ) .
 
-TextualMatching         = Term ( "startswith" | "endswith" | "contains" ) Term .
+Equality            = TermOrMaths ( "eq" | "neq" ) TermOrMaths .
 
-Mathematics             = Term ( "plus" | "minus" | "mul" | "div" ) Term .
+Comparison          = TermOrMaths ( "gt" | "gte" | "lt" | "lte" ) TermOrMaths .
 
-Is                      = identifier "is" [ "not" ] bool
-                        | "is" [ "not "] identifier
-                        | identifier "is" [ "not" ] "null" .
+Range               = TermOrMaths "between" TermOrMaths "and" TermOrMaths .
+
+Matching            = Term ( "startswith" | "endswith" | "contains" ) Term .
+
+Is                  = identifier "is" [ "not" ] bool
+                    | "is" [ "not "] identifier
+                    | identifier "is" [ "not" ] "null" .
 ```
 
 [[examples]]
