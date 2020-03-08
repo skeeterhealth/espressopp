@@ -13,52 +13,53 @@ import (
 	"io"
 )
 
+type Term struct {
+	Identifier *string  `  @Ident`
+	Integer    *int     `| @Int`
+	Decimal    *float64 `| @Float`
+	String     *string  `| @String`
+	Bool       *bool    `| @("true" | "false")`
+	Macro      *Macro   `| @@`
+}
+
 type Macro struct {
 	Name string  `@("#") @Ident`
 	Args []*Term `("(" @@* ")")?`
 }
 
-type Term struct {
-	Identifier *string    `  @Ident`
-	Integer    *int       `| @Int`
-	Decimal    *float64   `| @Float`
-	String     *string    `| @String`
-	Bool       *bool      `| @("true" | "false")`
-	Macro      *Macro     `| @@`
-	ParenTerm  *ParenTerm `| @@`
+type Maths struct {
+	Term1 *Term  `@@`
+	Op    string `@("plus" | "minus" | "mul" | "div")`
+	Term2 *Term  `@@`
 }
 
-type ParenTerm struct {
-	Term *Term `"(" @@ ")"`
+type TermOrMaths struct {
+	Maths      *Maths `  @@`
+	ParenMaths *Maths `| "(" @@ ")"`
+	Term       *Term  `| @@`
 }
 
 type Equality struct {
-	Term1 *Term  `@@`
-	Op    string `@("eq" | "neq")`
-	Term2 *Term  `@@`
+	TermOrMaths1 *TermOrMaths `@@`
+	Op           string       `@("eq" | "neq")`
+	TermOrMaths2 *TermOrMaths `@@`
 }
 
 type Comparison struct {
-	Term1 *Term  `@@`
-	Op    string `@("gt" | "gte" | "lt" | "lte")`
-	Term2 *Term  `@@`
+	TermOrMaths1 *TermOrMaths `@@`
+	Op           string       `@("gt" | "gte" | "lt" | "lte")`
+	TermOrMaths2 *TermOrMaths `@@`
 }
 
-type NumericRange struct {
-	Term1 *Term `@@ "between"`
-	Term2 *Term `@@ "and"`
-	Term3 *Term `@@`
+type Range struct {
+	TermOrMaths1 *TermOrMaths `@@ "between"`
+	TermOrMaths2 *TermOrMaths `@@ "and"`
+	TermOrMaths3 *TermOrMaths `@@`
 }
 
-type TextualMatching struct {
+type Matching struct {
 	Term1 *Term  `@@`
 	Op    string `@("startswith" | "endswith" | "contains")`
-	Term2 *Term  `@@`
-}
-
-type Mathematics struct {
-	Term1 *Term  `@@`
-	Op    string `@("plus" | "minus" | "mul" | "div")`
 	Term2 *Term  `@@`
 }
 
@@ -85,13 +86,12 @@ type ParenExpression struct {
 
 type Expression struct {
 	Op              *string          `  @("and" | "or")`
+	ParenExpression *ParenExpression `| @@`
 	Equality        *Equality        `| @@`
 	Comparison      *Comparison      `| @@`
-	NumericRange    *NumericRange    `| @@`
-	TextualMatching *TextualMatching `| @@`
-	Mathematics     *Mathematics     `| @@`
+	Range           *Range           `| @@`
+	Matching        *Matching        `| @@`
 	Is              *Is              `| @@`
-	ParenExpression *ParenExpression `| @@`
 }
 
 // Grammar is the set of structural rules that govern the composition of an
