@@ -58,14 +58,14 @@ func emitExpression(e *Expression) string {
 		s = fmt.Sprintf(" %s ", *e.Op)
 	} else if e.ParenExpression != nil {
 		s = emitParenExpression(e.ParenExpression)
+	} else if e.Comparison != nil {
+		s = emitComparison(e.Comparison)		
 	} else if e.Equality != nil {
 		s = emitEquality(e.Equality)
-	} else if e.Comparison != nil {
-		s = emitComparison(e.Comparison)
+	} else if e.Match != nil {
+		s = emitMatch(e.Match)
 	} else if e.Range != nil {
 		s = emitRange(e.Range)
-	} else if e.Matching != nil {
-		s = emitMatching(e.Matching)
 	} else if e.Is != nil {
 		s = emitIs(e.Is)
 	}
@@ -92,38 +92,36 @@ func emitParenExpression(pe *ParenExpression) string {
 	return sb.String()
 }
 
+// emitComparison renders c.
+func emitComparison(c *Comparison) string {
+	t1 := emitTermOrMath(c.TermOrMath1)
+	t2 := emitTermOrMath(c.TermOrMath2)
+	return fmt.Sprintf("%s %s %s", t1, c.Op, t2)
+}
+
 // emitEquality renders e.
 func emitEquality(e *Equality) string {
-	t1 := emitTermOrMaths(e.TermOrMaths1)
-	t2 := emitTermOrMaths(e.TermOrMaths2)
+	t1 := emitTermOrMath(e.TermOrMath1)
+	t2 := emitTermOrMath(e.TermOrMath2)
 
 	return fmt.Sprintf("%s %s %s", t1, e.Op, t2)
 }
 
-// emitComparison renders c.
-func emitComparison(c *Comparison) string {
-	fmt.Println(fmt.Sprintf("Term1 = %v", c.TermOrMaths1))
-	fmt.Println(fmt.Sprintf("Term2 = %v", c.TermOrMaths2))
-	t1 := emitTermOrMaths(c.TermOrMaths1)
-	t2 := emitTermOrMaths(c.TermOrMaths2)
-	return fmt.Sprintf("%s %s %s", t1, c.Op, t2)
-}
-
-// emitRange renders r.
-func emitRange(r *Range) string {
-	t1 := emitTermOrMaths(r.TermOrMaths1)
-	t2 := emitTermOrMaths(r.TermOrMaths2)
-	t3 := emitTermOrMaths(r.TermOrMaths3)
-
-	return fmt.Sprintf("%s between %s and %s", t1, t2, t3)
-}
-
-// emitMatching renders m.
-func emitMatching(m *Matching) string {
+// emitMatch renders m.
+func emitMatch(m *Match) string {
 	t1 := emitTerm(m.Term1)
 	t2 := emitTerm(m.Term2)
 
 	return fmt.Sprintf("%s %s %s", t1, m.Op, t2)
+}
+
+// emitRange renders r.
+func emitRange(r *Range) string {
+	t1 := emitTermOrMath(r.TermOrMath1)
+	t2 := emitTermOrMath(r.TermOrMath2)
+	t3 := emitTermOrMath(r.TermOrMath3)
+
+	return fmt.Sprintf("%s between %s and %s", t1, t2, t3)
 }
 
 // emitIs renders i.
@@ -184,8 +182,8 @@ func emitMacro(m *Macro) string {
 	return sb.String()
 }
 
-// emitMaths renders m.
-func emitMaths(m *Maths) string {
+// emitMath renders m.
+func emitMath(m *Math) string {
 	t1 := emitTerm(m.Term1)
 	t2 := emitTerm(m.Term2)
 
@@ -213,14 +211,14 @@ func emitTerm(t *Term) string {
 	return s
 }
 
-// emitTermOrMaths renders tm.
-func emitTermOrMaths(tm *TermOrMaths) string {
+// emitTermOrMath renders tm.
+func emitTermOrMath(tm *TermOrMath) string {
 	var s string
 
-	if tm.Maths != nil {
-		s = emitMaths(tm.Maths)
-	} else if tm.ParenMaths != nil {
-		s = fmt.Sprintf("(%s)", emitMaths(tm.ParenMaths))
+	if tm.Math != nil {
+		s = emitMath(tm.Math)
+	} else if tm.ParenMath != nil {
+		s = fmt.Sprintf("(%s)", emitMath(tm.ParenMath))
 	} else if tm.Term != nil {
 		s = emitTerm(tm.Term)
 	}
