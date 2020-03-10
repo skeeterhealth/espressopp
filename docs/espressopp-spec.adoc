@@ -164,10 +164,10 @@ Query               = Expression { Expression } .
 
 Expression          = "and" | "or"
                     | ParenExpression
-                    | Equality
                     | Comparison
+                    | Equality
+                    | Match
                     | Range
-                    | Matching
                     | Is .
 ParenExpression     = [ "not" ] "(" Expression { Espression } ")" .
 
@@ -175,17 +175,17 @@ Term                = identifier | int | float | string | bool | Macro .
 
 Macro               = "#" identifier [ "(" Term { "," Term } ")" ] .
 
-Maths               = Term ( "plus" | "minus" | "mul" | "div" ) Term .
+Math                = Term ( "plus" | "minus" | "mul" | "div" ) Term .
 
-TermOrMaths         = ( Maths | "(" Maths ")" | Term ) .
+TermOrMath          = ( Math | "(" Math ")" | Term ) .
 
-Equality            = TermOrMaths ( "eq" | "neq" ) TermOrMaths .
+Comparison          = TermOrMath ( "gt" | "gte" | "lt" | "lte" ) TermOrMath.
 
-Comparison          = TermOrMaths ( "gt" | "gte" | "lt" | "lte" ) TermOrMaths .
+Equality            = TermOrMath ( "eq" | "neq" ) TermOrMath .
 
-Range               = TermOrMaths "between" TermOrMaths "and" TermOrMaths .
+Match               = Term ( "startswith" | "endswith" | "contains" ) Term .
 
-Matching            = Term ( "startswith" | "endswith" | "contains" ) Term .
+Range               = TermOrMath "between" TermOrMath "and" TermOrMath .
 
 Is                  = identifier "is" [ "not" ] bool
                     | "is" [ "not "] identifier
