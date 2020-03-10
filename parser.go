@@ -27,37 +27,37 @@ type Macro struct {
 	Args []*Term `("(" (@@ ("," @@)*)? ")")?`
 }
 
-type Maths struct {
+type Math struct {
 	Term1 *Term  `@@`
 	Op    string `@("plus" | "minus" | "mul" | "div")`
 	Term2 *Term  `@@`
 }
 
-type TermOrMaths struct {
-	Maths      *Maths `  @@`
-	ParenMaths *Maths `| "(" @@ ")"`
-	Term       *Term  `| @@`
+type TermOrMath struct {
+	Math       *Math `  @@`
+	ParenMath  *Math `| "(" @@ ")"`
+	Term       *Term `| @@`
 }
 
 type Equality struct {
-	TermOrMaths1 *TermOrMaths `@@`
-	Op           string       `@("eq" | "neq")`
-	TermOrMaths2 *TermOrMaths `@@`
+	TermOrMath1 *TermOrMath `@@`
+	Op          string      `@("eq" | "neq")`
+	TermOrMath2 *TermOrMath `@@`
 }
 
 type Comparison struct {
-	TermOrMaths1 *TermOrMaths `@@`
-	Op           string       `@("gt" | "gte" | "lt" | "lte")`
-	TermOrMaths2 *TermOrMaths `@@`
+	TermOrMath1 *TermOrMath `@@`
+	Op          string      `@("gt" | "gte" | "lt" | "lte")`
+	TermOrMath2 *TermOrMath `@@`
 }
 
 type Range struct {
-	TermOrMaths1 *TermOrMaths `@@ "between"`
-	TermOrMaths2 *TermOrMaths `@@ "and"`
-	TermOrMaths3 *TermOrMaths `@@`
+	TermOrMath1 *TermOrMath `@@ "between"`
+	TermOrMath2 *TermOrMath `@@ "and"`
+	TermOrMath3 *TermOrMath `@@`
 }
 
-type Matching struct {
+type Match struct {
 	Term1 *Term  `@@`
 	Op    string `@("startswith" | "endswith" | "contains")`
 	Term2 *Term  `@@`
@@ -87,10 +87,10 @@ type ParenExpression struct {
 type Expression struct {
 	Op              *string          `  @("and" | "or")`
 	ParenExpression *ParenExpression `| @@`
-	Equality        *Equality        `| @@`
 	Comparison      *Comparison      `| @@`
+	Equality        *Equality        `| @@`
+	Match           *Match           `| @@`
 	Range           *Range           `| @@`
-	Matching        *Matching        `| @@`
 	Is              *Is              `| @@`
 }
 
