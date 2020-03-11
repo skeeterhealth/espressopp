@@ -1,6 +1,6 @@
 = The Espresso++ Language Specification
 Giuseppe Greco <giuseppe.greco@skeeterhealth.com>
-v.0.1, 22.02.2020: First draft
+v.0.1, 2020-02-22: First draft
 :sectnums:
 :toc:
 :toclevels: 1
@@ -29,7 +29,7 @@ principles and processes by which statements are constructed in {espressopp}.
 
 The first version of {espressopp} supports logical and matching _operators_ as well as
 a number of helpful _macros_. A record is selected when the filtering expression evaluates
-to `true` &ndash; an expression is a combination of one or more constants, fields, operators,
+to `true` -- an expression is a combination of one or more constants, fields, operators,
 and macros that {espressopp} interprets and computes to produce a native query.
 
 _Logical operators_ allow a program to make a decision based on multiple conditions.

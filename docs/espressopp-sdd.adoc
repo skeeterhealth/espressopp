@@ -1,6 +1,6 @@
 = Espresso++: Software Design Document
 Giuseppe Greco <giuseppe.greco@skeeterhealth.com>
-v.0.1, 23.02.2020: First draft
+v.0.1, 2020-02-23: First draft
 :sectnums:
 :toc:
 :toclevels: 3

@@ -1,5 +1,5 @@
 /**
- * @begin 4-Mar-2020
+ * @begin 2020-03-04
  * @author <a href="mailto:giuseppe.greco@skeeterhealth.com">Giuseppe Greco</a>
  * @copyright 2020 <a href="skeeterhealth.com">Skeeter</a>
  */
@@ -59,7 +59,7 @@ func emitExpression(e *Expression) string {
 	} else if e.ParenExpression != nil {
 		s = emitParenExpression(e.ParenExpression)
 	} else if e.Comparison != nil {
-		s = emitComparison(e.Comparison)		
+		s = emitComparison(e.Comparison)
 	} else if e.Equality != nil {
 		s = emitEquality(e.Equality)
 	} else if e.Match != nil {
