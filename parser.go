@@ -9,6 +9,7 @@ package espressopp
 import (
 	"github.com/alecthomas/participle"
 	"github.com/alecthomas/participle/lexer"
+	"github.com/alecthomas/participle/lexer/ebnf"
 	"github.com/alecthomas/repr"
 	"io"
 )
@@ -104,20 +105,45 @@ type Grammar struct {
 // of tokens from the input Espresso++ expression as particular non-terminals
 // and by building the parse tree.
 type parser struct {
-	p *participle.Parser
+	espressoppParser *participle.Parser
 }
+
+var (
+	espressoppLexer = lexer.Must(ebnf.New(`
+		Comment = "#" { "\u0000"…"\uffff"-"\n" } .
+		DateTime = date "T" time [ "-" digit digit ":" digit digit ].
+		Date = date .
+		Time = time .
+		Ident = (alpha | "_") { "_" | alpha | digit } .
+		String = "\"" { "\u0000"…"\uffff"-"\""-"\\" | "\\" any } "\"" .
+		Int = [ "-" | "+" ] digit { digit } .
+		Float = ("." | digit) {"." | digit} .
+		Punct = "!"…"/" | ":"…"@" | "["…` + "\"`\"" + ` | "{"…"~" .
+		Whitespace = " " | "\t" | "\n" | "\r" .
+
+		alpha = "a"…"z" | "A"…"Z" .
+		digit = "0"…"9" .
+		any = "\u0000"…"\uffff" .
+		date = digit digit digit digit "-" digit digit "-" digit digit .
+		time = digit digit ":" digit digit ":" digit digit [ "." { digit } ] .
+	`))
+)
 
 // newParser creates a new instance of parser.
 func newParser() *parser {
 	return &parser{
-		p: participle.MustBuild(&Grammar{}, participle.UseLookahead(2)),
+		espressoppParser: participle.MustBuild(&Grammar{},
+			participle.Lexer(espressoppLexer),
+			participle.Unquote("String"),
+			participle.Elide("Whitespace", "Comment"),
+			participle.UseLookahead(2)),
 	}
 }
 
 // parse parses the Espresso++ expressions in r and returns the resulting grammar.
 func (p *parser) parse(r io.Reader) (error, *Grammar) {
 	grammar := &Grammar{}
-	err := p.p.Parse(r, grammar)
+	err := p.espressoppParser.Parse(r, grammar)
 
 	return err, grammar
 }
