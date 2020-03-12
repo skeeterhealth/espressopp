@@ -154,11 +154,15 @@ _Grammar_ is the set of structural rules that govern the composition of statemen
 used to describe it.
 
 ```
-identifier          = . // http://golang.org/ref/spec#identifier
-int                 = . // http://golang.org/ref/spec#int_lit
-float               = . // http://golang.org/ref/spec#float_lit
-string              = . // http://golang.org/ref/spec#string_lit
+digit               = . // https://golang.org/ref/spec#decimal_digit
+identifier          = . // https://golang.org/ref/spec#identifier
+int                 = . // https://golang.org/ref/spec#int_lit
+float               = . // https://golang.org/ref/spec#float_lit
+string              = . // https://golang.org/ref/spec#string_lit
 bool                = "true" | "false" .
+date                = digit digit digit digit "-" digit digit "-" digit digit .
+time                = digit digit ":" digit digit ":" digit digit [ "." { digit } ] .
+
 
 Query               = Expression { Expression } .
 
@@ -171,7 +175,14 @@ Expression          = "and" | "or"
                     | Is .
 ParenExpression     = [ "not" ] "(" Expression { Espression } ")" .
 
-Term                = identifier | int | float | string | bool | Macro .
+Date                = date .
+Time                = time .
+DateTime            = date "T" time [ "-" digit digit ":" digit digit ] .
+
+Term                = identifier
+                    | int | float | string | bool
+                    | Date | Time | DateTime
+                    | Macro .
 
 Macro               = "#" identifier [ "(" Term { "," Term } ")" ] .
 
