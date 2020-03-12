@@ -18,7 +18,7 @@ type Term struct {
 	Identifier *string  `  @Ident`
 	Integer    *int     `| @Int`
 	Decimal    *float64 `| @Float`
-	String     *string  `| @String`
+	String     *string  `| @(String | DateTime | Date | Time)`
 	Bool       *bool    `| @("true" | "false")`
 	Macro      *Macro   `| @@`
 }
@@ -115,7 +115,8 @@ var (
 		Date = date .
 		Time = time .
 		Ident = (alpha | "_") { "_" | alpha | digit } .
-		String = "\"" { "\u0000"…"\uffff"-"\""-"\\" | "\\" any } "\"" .
+		String = "\"" { "\u0000"…"\uffff"-"\""-"\\" | "\\" any } "\""
+               | "'"  { "\u0000"…"\uffff"-"'"-"\\"  | "\\" any } "'" .
 		Int = [ "-" | "+" ] digit { digit } .
 		Float = ("." | digit) {"." | digit} .
 		Punct = "!"…"/" | ":"…"@" | "["…` + "\"`\"" + ` | "{"…"~" .
