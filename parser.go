@@ -111,9 +111,9 @@ type parser struct {
 var (
 	espressoppLexer = lexer.Must(ebnf.New(`
 		Comment = "#" { "\u0000"…"\uffff"-"\n" } .
-		DateTime = date "T" time [ "-" digit digit ":" digit digit ].
 		Date = date .
 		Time = time .
+		DateTime = date "T" time [ "-" digit digit ":" digit digit ] .
 		Ident = (alpha | "_") { "_" | alpha | digit } .
 		String = "\"" { "\u0000"…"\uffff"-"\""-"\\" | "\\" any } "\""
                | "'"  { "\u0000"…"\uffff"-"'"-"\\"  | "\\" any } "'" .
