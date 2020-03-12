@@ -18,13 +18,16 @@ type Term struct {
 	Identifier *string  `  @Ident`
 	Integer    *int     `| @Int`
 	Decimal    *float64 `| @Float`
-	String     *string  `| @(String | DateTime | Date | Time)`
+	String     *string  `| @String`
+	Date       *string  `| @Date`
+	Time       *string  `| @Time`
+	DateTime   *string  `| @DateTime`
 	Bool       *bool    `| @("true" | "false")`
 	Macro      *Macro   `| @@`
 }
 
 type Macro struct {
-	Name string  `@("#") @Ident`
+	Name string  `@Macro`
 	Args []*Term `("(" (@@ ("," @@)*)? ")")?`
 }
 
@@ -114,9 +117,9 @@ var (
 		Date = date .
 		Time = time .
 		DateTime = date "T" time [ "-" digit digit ":" digit digit ] .
-		Ident = (alpha | "_") { "_" | alpha | digit } .
-		String = "\"" { "\u0000"…"\uffff"-"\""-"\\" | "\\" any } "\""
-               | "'"  { "\u0000"…"\uffff"-"'"-"\\"  | "\\" any } "'" .
+		Ident = ident .
+		Macro = "#" ident .
+		String = "\"" { "\u0000"…"\uffff"-"\""-"\\" | "\\" any } "\"" | "'" { "\u0000"…"\uffff"-"'"-"\\" | "\\" any } "'" .
 		Int = [ "-" | "+" ] digit { digit } .
 		Float = ("." | digit) {"." | digit} .
 		Punct = "!"…"/" | ":"…"@" | "["…` + "\"`\"" + ` | "{"…"~" .
@@ -125,6 +128,7 @@ var (
 		alpha = "a"…"z" | "A"…"Z" .
 		digit = "0"…"9" .
 		any = "\u0000"…"\uffff" .
+		ident = (alpha | "_") { "_" | alpha | digit } .
 		date = digit digit digit digit "-" digit digit "-" digit digit .
 		time = digit digit ":" digit digit ":" digit digit [ "." { digit } ] .
 	`))
