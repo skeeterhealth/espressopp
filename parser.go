@@ -15,40 +15,40 @@ import (
 )
 
 type Expression struct {
-	Equality    *Equality	`  @@`
-	Range       *Range      `| @@`
-	Match       *Match      `| @@`
-	Is          *Is         `| @@`
+	Equality *Equality `  @@`
+	Range    *Range    `| @@`
+	Match    *Match    `| @@`
+	Is       *Is       `| @@`
 }
 
 type SubExpression struct {
-    Op          string      `@( "and" | "or" )?`
-    Not         bool        `@( "not" )?`
-    Expression  Expression  `"(" @@ ")"`
+	Op         string     `@( "and" | "or" )?`
+	Not        bool       `@( "not" )?`
+	Expression Expression `"(" @@ ")"`
 }
 
 type Equality struct {
-	Comparison 	*Comparison `@@`
-	Op         	string      `( @( "eq" | "ne" )`
-	Next       	*Equality   `@@ )?`
+	Comparison *Comparison `@@`
+	Op         string      `( @( "eq" | "ne" )`
+	Next       *Equality   `@@ )?`
 }
 
 type Comparison struct {
-	Addition 	*Addition   `@@`
-	Op       	string      `( @( "gt" | "gte" | "lt" | "lte" )`
-	Next     	*Comparison `@@ )?`
+	Addition *Addition   `@@`
+	Op       string      `( @( "gt" | "gte" | "lt" | "lte" )`
+	Next     *Comparison `@@ )?`
 }
 
 type Addition struct {
-	Multiplication	*Multiplication `@@`
-	Op             	string          `( @( "-" | "+" )`
-	Next           	*Addition       `@@ )?`
+	Multiplication *Multiplication `@@`
+	Op             string          `( @( "-" | "+" )`
+	Next           *Addition       `@@ )?`
 }
 
 type Multiplication struct {
-	Term	*Term           `@@`
-	Op    	string          `( @( "/" | "*" )`
-	Next  	*Multiplication	`@@ )?`
+	Term *Term           `@@`
+	Op   string          `( @( "/" | "*" )`
+	Next *Multiplication `@@ )?`
 }
 
 type Range struct {
@@ -85,16 +85,16 @@ type Macro struct {
 }
 
 type Term struct {
-	Identifier 		*string  		`  @Ident`
-	Integer    		*int     		`| @Int`
-	Decimal    		*float64 		`| @Float`
-	String     		*string  		`| @String`
-	Date       		*string  		`| @Date`
-	Time       		*string  		`| @Time`
-	DateTime   		*string  		`| @DateTime`
-	Bool       		*bool    		`| @( "true" | "false" )`
-	Macro      		*Macro   		`| @@`
-	SubExpression 	*SubExpression  `| @@`
+	Identifier    *string        `  @Ident`
+	Integer       *int           `| @Int`
+	Decimal       *float64       `| @Float`
+	String        *string        `| @String`
+	Date          *string        `| @Date`
+	Time          *string        `| @Time`
+	DateTime      *string        `| @DateTime`
+	Bool          *bool          `| @( "true" | "false" )`
+	Macro         *Macro         `| @@`
+	SubExpression *SubExpression `| @@`
 }
 
 // Grammar is the set of structural rules that govern the composition of an
