@@ -22,9 +22,9 @@ type Expression struct {
 }
 
 type SubExpression struct {
-	Op 			string 		`@( "and" | "or" )?`
-	Not         bool        `@( "not" )?`
-	Expression	Expression 	`"(" @@ ")"`
+    Op          string      `@( "and" | "or" )?`
+    Not         bool        `@( "not" )?`
+    Expression  Expression  `"(" @@ ")"`
 }
 
 type Equality struct {
