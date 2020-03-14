@@ -73,17 +73,17 @@ func emitExpression(e *Expression) string {
 	return s
 }
 
-// emitSubExpression renders pe.
-func emitSubExpression(pe *SubExpression) string {
+// emitSubExpression renders se.
+func emitSubExpression(se *SubExpression) string {
 	var sb strings.Builder
 
-	if pe.Not {
+	if se.Not {
 		sb.WriteString("not ")
 	}
 
 	sb.WriteString("(")
 
-	for _, e := range pe.Expressions {
+	for _, e := range se.Expressions {
 		sb.WriteString(emitExpression(e))
 	}
 

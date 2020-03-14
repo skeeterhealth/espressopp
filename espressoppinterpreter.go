@@ -17,7 +17,7 @@ type EspressoppInterpreter struct {
 // NewEspressoppInterpreter creates a new instance of EspressoppInterpreter.
 func NewEspressoppInterpreter() Interpreter {
 	return &EspressoppInterpreter{
-		parser: &parser{},
+		parser: newParser(),
 	}
 }
 
@@ -30,5 +30,5 @@ func (i *EspressoppInterpreter) Accept(cg CodeGenerator, r io.Reader, w io.Write
 
 // Parse parses the expressions in r and returns the resulting grammar.
 func (i *EspressoppInterpreter) Parse(r io.Reader) (error, *Grammar) {
-	return nil, nil
+	return i.parser.parse(r)
 }
