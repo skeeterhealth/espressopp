@@ -59,6 +59,10 @@ func getTestDataItems() []testDataItem {
 		{"ident1 eq ident2 mul 1", "ident1 = ident2 * 1", false},
 		{"ident1 eq ident2 div 1", "ident1 = ident2 / 1", false},
 
+		{"ident1 eq '2020-03-15'", "ident1 = '2020-03-15'", false},
+		{"ident1 eq '15:30:55'", "ident1 = '2000-01-01 15:30:55'", false},
+		{"ident1 eq '2020-03-15T14:10:25+02'", "ident1 = '2020-03-15 14:10:24+02'", false},
+
 		{"ident eq #today", "ident >= TRUNC(SYSDATE) AND ident < TRUNC(SYSDATE) + 1)", false},
 		{"ident lt (#now minus #duration('PT2H'))", "ident < (SYSDATE - INTERVAL) '2' HOUR", false},
 		{"ident lt (#now plus #duration('PT2H'))", "ident < (SYSDATE + INTERVAL) '2' HOUR", false},
