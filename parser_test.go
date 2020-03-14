@@ -114,7 +114,7 @@ func emitRange(r *Range) string {
 	t2 := emitTermOrMath(r.TermOrMath2)
 	t3 := emitTermOrMath(r.TermOrMath3)
 
-	return fmt.Sprintf("%s between %s and %s", t1, t2, t3)
+	return fmt.Sprintf("%s %s %s %s %s", t1, r.Between, t2, r.And, t3)
 }
 
 // emitMatch renders m.
