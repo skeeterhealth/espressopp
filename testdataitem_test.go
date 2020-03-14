@@ -49,13 +49,13 @@ func getTestDataItems() []testDataItem {
 		{"ident1 startswith 'text' and not (ident2 eq 1 or ident2 gt 10)", "ident LIKE 'text%' AND NOT(ident2 = 1 OR ident2 > 10)", false},
 		{"ident1 startswith 'text' or not (ident2 gte 1 and ident2 lte 10)", "ident LIKE 'text%' OR NOT (ident2 >= 1 AND ident2 <= 10)", false},
 
-		{"ident1 eq (ident2 plus 1)", "ident1 = (ident2 + 1)", false},
-		{"ident1 eq (ident2 minus 1)", "ident1 = (ident2 - 1)", false},
+		{"ident1 eq (ident2 add 1)", "ident1 = (ident2 + 1)", false},
+		{"ident1 eq (ident2 sub 1)", "ident1 = (ident2 - 1)", false},
 		{"ident1 eq (ident2 mul 1)", "ident1 = (ident2 * 1)", false},
 		{"ident1 eq (ident2 div 1)", "ident1 = (ident2 / 1)", false},
 
-		{"ident1 eq ident2 plus 1", "ident1 = ident2 + 1", false},
-		{"ident1 eq ident2 minus 1", "ident1 = ident2 - 1", false},
+		{"ident1 eq ident2 add 1", "ident1 = ident2 + 1", false},
+		{"ident1 eq ident2 sub 1", "ident1 = ident2 - 1", false},
 		{"ident1 eq ident2 mul 1", "ident1 = ident2 * 1", false},
 		{"ident1 eq ident2 div 1", "ident1 = ident2 / 1", false},
 
@@ -64,7 +64,7 @@ func getTestDataItems() []testDataItem {
 		{"ident1 eq '2020-03-15T14:10:25+02'", "ident1 = '2020-03-15 14:10:24+02'", false},
 
 		{"ident eq #today", "ident >= TRUNC(SYSDATE) AND ident < TRUNC(SYSDATE) + 1)", false},
-		{"ident lt (#now minus #duration('PT2H'))", "ident < (SYSDATE - INTERVAL) '2' HOUR", false},
-		{"ident lt (#now plus #duration('PT2H'))", "ident < (SYSDATE + INTERVAL) '2' HOUR", false},
+		{"ident lt (#now sub #duration('PT2H'))", "ident < (SYSDATE - INTERVAL) '2' HOUR", false},
+		{"ident lt (#now add #duration('PT2H'))", "ident < (SYSDATE + INTERVAL) '2' HOUR", false},
 	}
 }
