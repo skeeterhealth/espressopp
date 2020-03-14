@@ -33,7 +33,7 @@ type Macro struct {
 
 type Math struct {
 	Term1 *Term  `@@`
-	Op    string `@("plus" | "minus" | "mul" | "div")`
+	Op    string `@("add" | "sub" | "mul" | "div")`
 	Term2 *Term  `@@`
 }
 
