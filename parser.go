@@ -14,69 +14,16 @@ import (
 	"io"
 )
 
-type Expression struct {
-	Equality *Equality `  @@`
-	Range    *Range    `| @@`
-	Match    *Match    `| @@`
-	Is       *Is       `| @@`
-}
-
-type SubExpression struct {
-	Op         string     `@( "and" | "or" )?`
-	Not        bool       `@( "not" )?`
-	Expression Expression `"(" @@ ")"`
-}
-
-type Equality struct {
-	Comparison *Comparison `@@`
-	Op         string      `( @( "eq" | "ne" )`
-	Next       *Equality   `@@ )?`
-}
-
-type Comparison struct {
-	Addition *Addition   `@@`
-	Op       string      `( @( "gt" | "gte" | "lt" | "lte" )`
-	Next     *Comparison `@@ )?`
-}
-
-type Addition struct {
-	Multiplication *Multiplication `@@`
-	Op             string          `( @( "-" | "+" )`
-	Next           *Addition       `@@ )?`
-}
-
-type Multiplication struct {
-	Term *Term           `@@`
-	Op   string          `( @( "/" | "*" )`
-	Next *Multiplication `@@ )?`
-}
-
-type Range struct {
-	Addition1 *Addition `@@ "between"`
-	Addition1 *Addition `@@ "and"`
-	Addition1 *Addition `@@`
-}
-
-type Match struct {
-	Term1 *Term  `@@`
-	Op    string `@( "startswith" | "endswith" | "contains" )`
-	Term2 *Term  `@@`
-}
-
-type IsWithExplicitValue struct {
-	Ident string `@Ident`
-	Not   bool   `"is" @( "not" )?`
-	Value string `@( "true" | "false" | "null" )`
-}
-
-type IsWithImplicitValue struct {
-	Not   bool   `"is" @( "not" )?`
-	Ident string `@Ident`
-}
-
-type Is struct {
-	IsWithExplicitValue *IsWithExplicitValue `  @@`
-	IsWithImplicitValue *IsWithImplicitValue `| @@`
+type Term struct {
+	Identifier *string  `  @Ident`
+	Integer    *int     `| @Int`
+	Decimal    *float64 `| @Float`
+	String     *string  `| @String`
+	Date       *string  `| @Date`
+	Time       *string  `| @Time`
+	DateTime   *string  `| @DateTime`
+	Bool       *bool    `| @("true" | "false")`
+	Macro      *Macro   `| @@`
 }
 
 type Macro struct {
@@ -84,17 +31,71 @@ type Macro struct {
 	Args []*Term `("(" (@@ ("," @@)*)? ")")?`
 }
 
-type Term struct {
-	Identifier    *string        `  @Ident`
-	Integer       *int           `| @Int`
-	Decimal       *float64       `| @Float`
-	String        *string        `| @String`
-	Date          *string        `| @Date`
-	Time          *string        `| @Time`
-	DateTime      *string        `| @DateTime`
-	Bool          *bool          `| @( "true" | "false" )`
-	Macro         *Macro         `| @@`
-	SubExpression *SubExpression `| @@`
+type Math struct {
+	Term1 *Term  `@@`
+	Op    string `@("plus" | "minus" | "mul" | "div")`
+	Term2 *Term  `@@`
+}
+
+type TermOrMath struct {
+	Math      *Math `  @@`
+	ParenMath *Math `| "(" @@ ")"`
+	Term      *Term `| @@`
+}
+
+type Equality struct {
+	TermOrMath1 *TermOrMath `@@`
+	Op          string      `@("eq" | "neq")`
+	TermOrMath2 *TermOrMath `@@`
+}
+
+type Comparison struct {
+	TermOrMath1 *TermOrMath `@@`
+	Op          string      `@("gt" | "gte" | "lt" | "lte")`
+	TermOrMath2 *TermOrMath `@@`
+}
+
+type Range struct {
+	TermOrMath1 *TermOrMath `@@ "between"`
+	TermOrMath2 *TermOrMath `@@ "and"`
+	TermOrMath3 *TermOrMath `@@`
+}
+
+type Match struct {
+	Term1 *Term  `@@`
+	Op    string `@("startswith" | "endswith" | "contains")`
+	Term2 *Term  `@@`
+}
+
+type Is struct {
+	IsWithExplicitValue *IsWithExplicitValue `  @@`
+	IsWithImplicitValue *IsWithImplicitValue `| @@`
+}
+
+type IsWithExplicitValue struct {
+	Ident string `@Ident`
+	Not   bool   `"is" @("not")?`
+	Value string `@("true" | "false" | "null")`
+}
+
+type IsWithImplicitValue struct {
+	Not   bool   `"is" @("not")?`
+	Ident string `@Ident`
+}
+
+type ParenExpression struct {
+	Not         bool          `@("not")?`
+	Expressions []*Expression `"(" @@+ ")"`
+}
+
+type Expression struct {
+	Op              *string          `  @("and" | "or")`
+	ParenExpression *ParenExpression `| @@`
+	Comparison      *Comparison      `| @@`
+	Equality        *Equality        `| @@`
+	Match           *Match           `| @@`
+	Range           *Range           `| @@`
+	Is              *Is              `| @@`
 }
 
 // Grammar is the set of structural rules that govern the composition of an
