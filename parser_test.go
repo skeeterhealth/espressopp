@@ -56,16 +56,16 @@ func emitExpression(e *Expression) string {
 
 	if e.Op != nil {
 		s = fmt.Sprintf(" %s ", *e.Op)
-	} else if e.ParenExpression != nil {
-		s = emitParenExpression(e.ParenExpression)
+	} else if e.SubExpression != nil {
+		s = emitSubExpression(e.SubExpression)
 	} else if e.Comparison != nil {
 		s = emitComparison(e.Comparison)
 	} else if e.Equality != nil {
 		s = emitEquality(e.Equality)
-	} else if e.Match != nil {
-		s = emitMatch(e.Match)
 	} else if e.Range != nil {
 		s = emitRange(e.Range)
+	} else if e.Match != nil {
+		s = emitMatch(e.Match)
 	} else if e.Is != nil {
 		s = emitIs(e.Is)
 	}
@@ -73,8 +73,8 @@ func emitExpression(e *Expression) string {
 	return s
 }
 
-// emitParenExpression renders pe.
-func emitParenExpression(pe *ParenExpression) string {
+// emitSubExpression renders pe.
+func emitSubExpression(pe *SubExpression) string {
 	var sb strings.Builder
 
 	if pe.Not {
@@ -96,6 +96,7 @@ func emitParenExpression(pe *ParenExpression) string {
 func emitComparison(c *Comparison) string {
 	t1 := emitTermOrMath(c.TermOrMath1)
 	t2 := emitTermOrMath(c.TermOrMath2)
+
 	return fmt.Sprintf("%s %s %s", t1, c.Op, t2)
 }
 
@@ -107,14 +108,6 @@ func emitEquality(e *Equality) string {
 	return fmt.Sprintf("%s %s %s", t1, e.Op, t2)
 }
 
-// emitMatch renders m.
-func emitMatch(m *Match) string {
-	t1 := emitTerm(m.Term1)
-	t2 := emitTerm(m.Term2)
-
-	return fmt.Sprintf("%s %s %s", t1, m.Op, t2)
-}
-
 // emitRange renders r.
 func emitRange(r *Range) string {
 	t1 := emitTermOrMath(r.TermOrMath1)
@@ -122,6 +115,14 @@ func emitRange(r *Range) string {
 	t3 := emitTermOrMath(r.TermOrMath3)
 
 	return fmt.Sprintf("%s between %s and %s", t1, t2, t3)
+}
+
+// emitMatch renders m.
+func emitMatch(m *Match) string {
+	t1 := emitTerm(m.Term1)
+	t2 := emitTerm(m.Term2)
+
+	return fmt.Sprintf("%s %s %s", t1, m.Op, t2)
 }
 
 // emitIs renders i.
@@ -158,8 +159,6 @@ func emitMacro(m *Macro) string {
 		for i, a := range m.Args {
 			if a.Identifier != nil {
 				s = *a.Identifier
-			} else if a.Macro != nil {
-				s = emitMacro(a.Macro)
 			} else if a.Integer != nil {
 				s = strconv.Itoa(*a.Integer)
 			} else if a.Decimal != nil {
@@ -168,6 +167,8 @@ func emitMacro(m *Macro) string {
 				s = fmt.Sprintf("'%s'", *a.String)
 			} else if a.Bool != nil {
 				s = strconv.FormatBool(*a.Bool)
+			} else if a.Macro != nil {
+				s = emitMacro(a.Macro)
 			}
 
 			if i > 0 {
@@ -202,6 +203,12 @@ func emitTerm(t *Term) string {
 		s = strconv.FormatFloat(*t.Decimal, 'f', -1, 64)
 	} else if t.String != nil {
 		s = fmt.Sprintf("'%s'", *t.String)
+	} else if t.Date != nil {
+		s = fmt.Sprintf("'%s'", *t.Date)
+	} else if t.Time != nil {
+		s = fmt.Sprintf("'%s'", *t.Time)
+	} else if t.DateTime != nil {
+		s = fmt.Sprintf("'%s'", *t.DateTime)
 	} else if t.Bool != nil {
 		s = strconv.FormatBool(*t.Bool)
 	} else if t.Macro != nil {
@@ -217,8 +224,8 @@ func emitTermOrMath(tm *TermOrMath) string {
 
 	if tm.Math != nil {
 		s = emitMath(tm.Math)
-	} else if tm.ParenMath != nil {
-		s = fmt.Sprintf("(%s)", emitMath(tm.ParenMath))
+	} else if tm.SubMath != nil {
+		s = fmt.Sprintf("(%s)", emitMath(tm.SubMath))
 	} else if tm.Term != nil {
 		s = emitTerm(tm.Term)
 	}
