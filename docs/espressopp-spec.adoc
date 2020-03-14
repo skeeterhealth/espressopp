@@ -167,17 +167,18 @@ time                = digit digit ":" digit digit ":" digit digit [ "." { digit 
 Query               = Expression { Expression } .
 
 Expression          = "and" | "or"
-                    | ParenExpression
+                    | SubExpression
                     | Comparison
                     | Equality
                     | Match
                     | Range
                     | Is .
-ParenExpression     = [ "not" ] "(" Expression { Espression } ")" .
+SubExpression     = [ "not" ] "(" Expression { Espression } ")" .
 
-Date                = date .
-Time                = time .
-DateTime            = date "T" time [ "-" digit digit ":" digit digit ] .
+Date                = "\"" date "\"" | "'" date "'" .
+Time                = "\"" time "\"" | "'" time "'" .
+DateTime            = "\"" date "T" time [ "+" digit digit ] "\""
+                    | "'" date "T" time [ "+" digit digit ] "'" .
 
 Term                = identifier
                     | int | float | string | bool
@@ -186,7 +187,7 @@ Term                = identifier
 
 Macro               = "#" identifier [ "(" Term { "," Term } ")" ] .
 
-Math                = Term ( "plus" | "minus" | "mul" | "div" ) Term .
+Math                = Term ( "add" | "sub" | "mul" | "div" ) Term .
 
 TermOrMath          = ( Math | "(" Math ")" | Term ) .
 
