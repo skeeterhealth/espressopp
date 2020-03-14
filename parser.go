@@ -38,9 +38,9 @@ type Math struct {
 }
 
 type TermOrMath struct {
-	Math      *Math `  @@`
-	ParenMath *Math `| "(" @@ ")"`
-	Term      *Term `| @@`
+	Math    *Math `  @@`
+	SubMath *Math `| "(" @@ ")"`
+	Term    *Term `| @@`
 }
 
 type Equality struct {
@@ -83,19 +83,19 @@ type IsWithImplicitValue struct {
 	Ident string `@Ident`
 }
 
-type ParenExpression struct {
+type SubExpression struct {
 	Not         bool          `@("not")?`
 	Expressions []*Expression `"(" @@+ ")"`
 }
 
 type Expression struct {
-	Op              *string          `  @("and" | "or")`
-	ParenExpression *ParenExpression `| @@`
-	Comparison      *Comparison      `| @@`
-	Equality        *Equality        `| @@`
-	Match           *Match           `| @@`
-	Range           *Range           `| @@`
-	Is              *Is              `| @@`
+	Op            *string        `  @("and" | "or")`
+	SubExpression *SubExpression `| @@`
+	Comparison    *Comparison    `| @@`
+	Equality      *Equality      `| @@`
+	Range         *Range         `| @@`
+	Match         *Match         `| @@`
+	Is            *Is            `| @@`
 }
 
 // Grammar is the set of structural rules that govern the composition of an
@@ -114,9 +114,9 @@ type parser struct {
 var (
 	espressoppLexer = lexer.Must(ebnf.New(`
 		Comment = "//" { "\u0000"…"\uffff"-"\n" } .
-		Date = date .
-		Time = time .
-		DateTime = date "T" time [ "-" digit digit ":" digit digit ] .
+		Date = "\"" date "\"" | "'" date "'" .
+		Time = "\"" time "\"" | "'" time "'" .
+		DateTime = "\"" date "T" time [ "+" digit digit ] "\"" | "'" date "T" time [ "+" digit digit  ] "'" .
 		Ident = ident .
 		Macro = "#" ident .
 		String = "\"" { "\u0000"…"\uffff"-"\""-"\\" | "\\" any } "\"" | "'" { "\u0000"…"\uffff"-"'"-"\\" | "\\" any } "'" .
@@ -139,7 +139,7 @@ func newParser() *parser {
 	return &parser{
 		espressoppParser: participle.MustBuild(&Grammar{},
 			participle.Lexer(espressoppLexer),
-			participle.Unquote("String"),
+			participle.Unquote("String", "Date", "Time", "DateTime"),
 			participle.Elide("Whitespace", "Comment"),
 			participle.UseLookahead(2)),
 	}
