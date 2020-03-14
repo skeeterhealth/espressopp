@@ -56,8 +56,10 @@ type Comparison struct {
 }
 
 type Range struct {
-	TermOrMath1 *TermOrMath `@@ "between"`
-	TermOrMath2 *TermOrMath `@@ "and"`
+	TermOrMath1 *TermOrMath `@@`
+	Between     string      `@("between")`
+	TermOrMath2 *TermOrMath `@@`
+	And         string      `@("and")`
 	TermOrMath3 *TermOrMath `@@`
 }
 
