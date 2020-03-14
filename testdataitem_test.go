@@ -18,9 +18,9 @@ type testDataItem struct {
 func getTestDataItems() []testDataItem {
 	return []testDataItem{
 		{"ident eq 10", "ident = 10", false},
-		{"ident eq 'test'", "ident = 'text'", false},
+		{"ident eq 'text'", "ident = 'text'", false},
 		{"ident neq 10", "ident <> 10", false},
-		{"ident neq 'test'", "ident <> 'text'", false},
+		{"ident neq 'text'", "ident <> 'text'", false},
 
 		{"ident is true", "ident = 1", false},
 		{"ident is false", "ident = 0", false},
@@ -33,16 +33,16 @@ func getTestDataItems() []testDataItem {
 		{"ident gte 10", "ident >= 10", false},
 		{"ident lt 10", "ident < 10", false},
 		{"ident lte 10", "ident <= 10", false},
-		{"ident between 1 and 10", "ident BETWEEN 1 and 10", false},
+		{"ident between 1 and 10", "ident BETWEEN 1 AND 10", false},
 
 		{"ident startswith 'text'", "ident LIKE 'text%'", false},
 		{"ident endswith 'text'", "ident LIKE '%text'", false},
 		{"ident contains 'text'", "ident LIKE '%text%'", false},
 
-		{"ident1 startswith 'text' and (ident2 eq 1 or ident2 gt 10)", "ident LIKE 'text%' AND (ident2 = 1 OR ident2 > 10)", false},
-		{"ident1 startswith 'text' or (ident2 gte 1 and ident2 lte 10)", "ident LIKE 'text%' OR (ident2 >= 1 AND ident2 <= 10)", false},
-		{"ident1 startswith 'text' and not (ident2 eq 1 or ident2 gt 10)", "ident LIKE 'text%' AND NOT(ident2 = 1 OR ident2 > 10)", false},
-		{"ident1 startswith 'text' or not (ident2 gte 1 and ident2 lte 10)", "ident LIKE 'text%' OR NOT (ident2 >= 1 AND ident2 <= 10)", false},
+		{"ident1 startswith 'text' and (ident2 eq 1 or ident2 gt 10)", "ident1 LIKE 'text%' AND (ident2 = 1 OR ident2 > 10)", false},
+		{"ident1 startswith 'text' or (ident2 gte 1 and ident2 lte 10)", "ident1 LIKE 'text%' OR (ident2 >= 1 AND ident2 <= 10)", false},
+		{"ident1 startswith 'text' and not (ident2 eq 1 or ident2 gt 10)", "ident1 LIKE 'text%' AND NOT (ident2 = 1 OR ident2 > 10)", false},
+		{"ident1 startswith 'text' or not (ident2 gte 1 and ident2 lte 10)", "ident1 LIKE 'text%' OR NOT (ident2 >= 1 AND ident2 <= 10)", false},
 
 		{"ident1 eq (ident2 add 1)", "ident1 = (ident2 + 1)", false},
 		{"ident1 eq (ident2 sub 1)", "ident1 = (ident2 - 1)", false},
@@ -54,9 +54,9 @@ func getTestDataItems() []testDataItem {
 		{"ident1 eq ident2 mul 1", "ident1 = ident2 * 1", false},
 		{"ident1 eq ident2 div 1", "ident1 = ident2 / 1", false},
 
-		{"ident1 eq '2020-03-15'", "ident1 = '2020-03-15'", false},
-		{"ident1 eq '15:30:55'", "ident1 = '2000-01-01 15:30:55'", false},
-		{"ident1 eq '2020-03-15T14:10:25+02'", "ident1 = '2020-03-15 14:10:24+02'", false},
+		{"ident eq '2020-03-15'", "ident = '2020-03-15'", false},
+		{"ident eq '15:30:55'", "ident = '15:30:55'", false},
+		{"ident eq '2020-03-15T14:10:25+02'", "ident = '2020-03-15 14:10:25+02'", false},
 
 		{"ident eq #today", "ident >= TRUNC(SYSDATE) AND ident < TRUNC(SYSDATE) + 1)", false},
 		{"ident lt (#now sub #duration('PT2H'))", "ident < (SYSDATE - INTERVAL) '2' HOUR", false},
