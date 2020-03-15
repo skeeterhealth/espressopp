@@ -19,22 +19,14 @@ func TestParse(t *testing.T) {
 
 	for _, item := range getTestDataItems() {
 		r := strings.NewReader(item.input)
-		err, grammar := parser.parse(r)
+		_, grammar := parser.parse(r)
 
 		result := emitGrammar(grammar)
 
-		if item.hasError {
-			if err == nil {
-				t.Errorf("Parser with input '%v' : FAILED, expected an error but got '%v'", item.input, result)
-			} else {
-				t.Logf("Parser with input '%v' : PASSED, expected an error and got '%v'", item.input, err)
-			}
+		if result != strings.Split(item.input, " //")[0] {
+			t.Errorf("Parser with input '%v' : FAILED, expected '%v' but got '%v'", item.input, item.input, result)
 		} else {
-			if result != item.input {
-				t.Errorf("Parser with input '%v' : FAILED, expected '%v' but got '%v'", item.input, item.input, result)
-			} else {
-				t.Logf("Parser with input '%v' : PASSED, expected '%v' and got '%v'", item.input, item.input, result)
-			}
+			t.Logf("Parser with input '%v' : PASSED, expected '%v' and got '%v'", item.input, item.input, result)
 		}
 	}
 }

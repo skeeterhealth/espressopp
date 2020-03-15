@@ -110,10 +110,6 @@ _Macros_ are single instructions that expand automatically into a set of instruc
 |===
 |Macro |Arguments |Description
 
-|`#today`
-|
-|Expands to today's date
-
 |`#now`
 |
 |Expands to current time
@@ -129,12 +125,12 @@ Finally, {espressopp} supports basic mathematics that allow complex expressions.
 |===
 |Math |Usage |Description
 
-|`plus`
-|*expr1* `plus` *expr2*
-|Sums an expression to another
+|`add`
+|*expr1* `add` *expr2*
+|Adds up an expression with another
 
-|`minus`
-|*expr1* `minus` *expr2*
+|`sub`
+|*expr1* `sub` *expr2*
 |Subtracts an expression from another
 
 |`mul`
@@ -219,14 +215,9 @@ Select the persons who are between 20 and 40 years old:
 age between 20 and 40
 ```
 
-Select today's orders that are either not processed or bigger than 3000 items:
-```
-create_time eq #today and (status neq "processed" or size gt 3000)
-```
-
 Select the orders with at least 2000 items that have been created in the past 2 hours:
 ```
-size gte 2000 and not(create_time lt #now minus #duration("PT2H"))
+size gte 2000 and not(create_time lt #now sub #duration("PT2H"))
 ```
 
 Select internal orders issued by employee 110110:
