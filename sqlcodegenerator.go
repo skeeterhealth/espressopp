@@ -374,6 +374,25 @@ func (cg *SqlCodeGenerator) emitMath(m *Math) (error, string, termType) {
 		return errors.Errorf("cannot compute values of type %s", cg.toTypeName(tt)), "", tt
 	}
 
+	if tt == dateType || tt == timeType || tt == dateTimeType {
+		var f string
+		switch tt {
+		case dateType:
+			f = "DATE"
+		case timeType:
+			f = "TIME"
+		case dateTimeType:
+			f = "TIMESTAMP"
+		}
+
+		if strings.HasPrefix(t1, "'") && strings.HasSuffix(t1, "'") {
+			t1 = fmt.Sprintf("%s %s", f, t1)
+		}
+		if strings.HasPrefix(t2, "'") && strings.HasSuffix(t2, "'") {
+			t2 = fmt.Sprintf("%s %s", f, t2)
+		}
+	}
+
 	var op string
 	switch m.Op {
 	case "add":
