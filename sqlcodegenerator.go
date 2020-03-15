@@ -367,6 +367,13 @@ func (cg *SqlCodeGenerator) emitMath(m *Math) (error, string, termType) {
 		return err, "", undefType
 	}
 
+	err, tt := cg.validateTypes(tt1, tt2)
+	if err != nil {
+		return err, "", undefType
+	} else if tt != intType && tt != decimalType && tt != dateType && tt != timeType && tt != dateTimeType {
+		return errors.Errorf("cannot compute values of type %s", cg.toTypeName(tt)), "", tt
+	}
+
 	var op string
 	switch m.Op {
 	case "add":
@@ -379,7 +386,6 @@ func (cg *SqlCodeGenerator) emitMath(m *Math) (error, string, termType) {
 		op = "/"
 	}
 
-	err, tt := cg.validateTypes(tt1, tt2)
 	return err, fmt.Sprintf("%s %s %s", t1, op, t2), tt
 }
 
