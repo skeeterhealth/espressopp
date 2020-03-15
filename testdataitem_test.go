@@ -68,6 +68,7 @@ func getTestDataItems() []testDataItem {
 		{"ident gt #now // this is a comment", "ident > CURRENT_TIMESTAMP", false},
 		{"ident lt (#now sub #duration('PT1H'))", "ident < (CURRENT_TIMESTAMP - INTERVAL '1 HOUR')", false},
 		{"ident lt (#now add #duration('PT2H'))", "ident < (CURRENT_TIMESTAMP + INTERVAL '2 HOURS')", false},
+		{"ident lt ('2020-03-15T14:10:25' add #duration('PT2H'))", "ident < (TIMESTAMP '2020-03-15 14:10:25' + INTERVAL '2 HOURS')", false},
 		{"ident lt (#now add #duration)", "ident < (CURRENT_TIMESTAMP + INTERVAL)", true},
 	}
 }
