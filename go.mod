@@ -3,6 +3,7 @@ module gitlab.com/skeeterhealth/espressopp
 go 1.13
 
 require (
+	github.com/alecthomas/kong v0.2.1
 	github.com/alecthomas/participle v0.4.1
 	github.com/alecthomas/repr v0.0.0-20181024024818-d37bc2a10ba1
 	github.com/channelmeter/iso8601duration v0.0.0-20150204201828-8da3af7a2a61
