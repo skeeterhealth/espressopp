@@ -7,11 +7,12 @@
 package espressopp
 
 import (
+	"io"
+
 	"github.com/alecthomas/participle"
 	"github.com/alecthomas/participle/lexer"
 	"github.com/alecthomas/participle/lexer/ebnf"
 	"github.com/alecthomas/repr"
-	"io"
 )
 
 type Term struct {

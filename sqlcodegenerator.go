@@ -9,12 +9,13 @@ package espressopp
 import (
 	"bytes"
 	"fmt"
-	duration "github.com/channelmeter/iso8601duration"
-	pluralize "github.com/gertd/go-pluralize"
-	"github.com/pkg/errors"
 	"io"
 	"strconv"
 	"strings"
+
+	duration "github.com/channelmeter/iso8601duration"
+	pluralize "github.com/gertd/go-pluralize"
+	"github.com/pkg/errors"
 )
 
 type termType int
