@@ -157,20 +157,7 @@ func emitMacro(m *Macro) string {
 		sb.WriteString("(")
 		var s string
 		for i, a := range m.Args {
-			if a.Identifier != nil {
-				s = *a.Identifier
-			} else if a.Integer != nil {
-				s = strconv.Itoa(*a.Integer)
-			} else if a.Decimal != nil {
-				s = strconv.FormatFloat(*a.Decimal, 'f', -1, 64)
-			} else if a.String != nil {
-				s = fmt.Sprintf("'%s'", *a.String)
-			} else if a.Bool != nil {
-				s = strconv.FormatBool(*a.Bool)
-			} else if a.Macro != nil {
-				s = emitMacro(a.Macro)
-			}
-
+			s = emitTerm(a)
 			if i > 0 {
 				sb.WriteString(", ")
 			}
