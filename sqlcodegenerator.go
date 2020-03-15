@@ -470,8 +470,7 @@ func (cg *SqlCodeGenerator) validateTypes(t1 termType, t2 termType) (error, term
 	} else if t2 == identType {
 		t = t1
 	} else {
-		err = errors.Errorf("type %s is not compatible with type %s",
-			cg.toTypeName(t1), cg.toTypeName(t2))
+		err = errors.Errorf("type %s is not compatible with type %s", cg.toTypeName(t1), cg.toTypeName(t2))
 	}
 
 	return err, t
