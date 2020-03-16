@@ -204,9 +204,9 @@ min_age >= 30 AND body_weight < 80
 Finally, the same Espresso++ expression translated into MongoDB query language:
 
  ```sh
-$ espressopp generate mongo "age gte 30"
+$ espressopp generate mongo "age gte 30 and weight lt 80"
 
-{ age: { $gte: 30 } }
+{ age: { $gte: 30 }, weight: { $lt: 80 } }
  ```
 
 ---
