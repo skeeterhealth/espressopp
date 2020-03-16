@@ -89,10 +89,15 @@ import (
 )
 
 func main() {
+    // map field names used in the query with actual column names
+	fieldNames := map[string]string{"age": "current_age"}
+	
 	r := strings.NewReader("age gte 30")
 	w := new(bytes.Buffer)
+
 	interpreter := espressopp.NewEspressoppInterpreter()
 	codeGenerator := espressopp.NewSqlCodeGenerator()
+	coddGenerator.MapFieldNames(fieldNames)
 	err := interpreter.Accept(codeGenerator, r, w)
 
 	if err != nil {
@@ -120,10 +125,15 @@ import (
 )
 
 func main() {
+    // map field names used in the query with actual column names
+	fieldNames := map[string]string{"age": "current_age"}
+	
 	r := strings.NewReader("age gte 30")
 	w := new(bytes.Buffer)
+	
 	interpreter := espressopp.NewEspressoppInterpreter()
 	codeGenerator := espressopp.NewMongoCodeGenerator()
+	coddGenerator.MapFieldNames(fieldNames)
 	err := interpreter.Accept(codeGenerator, r, w)
 
 	if err != nil {
@@ -143,20 +153,41 @@ Last but not least, developers can debug their Espresso++ expressions with the
 ```sh
 $ espressopp --help
 
+Usage: espressopp <command>
+
 A utility that converts input Espresso++ expressions into native queries.
 
-Usage:
+Flags:
+  --help    Show context-sensitive help.
 
-espressopp --target <LANGUAGE> "<EXPRESSION>"
+Commands:
+  generate    Generate target native query.
 
-Supported targets:
-1. sql
+Run "espressopp <command> --help" for more information on a command.
+```
+
+The `generate` command gets the target language and an Espresso++ expression as
+the input:
+
+```
+$ espressopp generate --help
+Usage: espressopp generate <target> <expression>
+
+Generate target native query.
+
+Arguments:
+  <target>        Target query language.
+  <expression>    Source expression.
+
+Flags:
+  --help    Show context-sensitive help.
+
 ```
 
 For example, let's translate the Espresso++ expression `age gte 30` into SQL:
 
 ```sh
-$ espressopp --target sql "age gte 30"
+$ espressopp generate sql "age gte 30"
 
 age >= 30
 ```
@@ -164,7 +195,7 @@ age >= 30
 Finally, the same Espresso++ expression translated into MongoDB query language:
 
  ```sh
-$ espressopp --target mongo "age gte 30"
+$ espressopp generate mongo "age gte 30"
 
 { age: { $gte: 30 } }
  ```
