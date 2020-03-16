@@ -171,25 +171,34 @@ the input:
 
 ```
 $ espressopp generate --help
-Usage: espressopp generate <target> <expression>
+
+Usage: espressopp generate <target> <expression> [<fieldmap> ...]
 
 Generate target native query.
 
 Arguments:
-  <target>        Target query language.
-  <expression>    Source expression.
+  <target>            Target query language.
+  <expression>        Source expression.
+  [<fieldmap> ...]    Mapping to native column names.
 
 Flags:
   --help    Show context-sensitive help.
-
 ```
 
-For example, let's translate the Espresso++ expression `age gte 30` into SQL:
+For example, let's translate the Espresso++ expression `age gte 30 and weight lt 80` into SQL:
 
 ```sh
-$ espressopp generate sql "age gte 30"
+$ espressopp generate sql "age gte 30 and weight lt 80"
 
-age >= 30
+age >= 30 AND weight < 80
+```
+
+And let's suppose the native column names differ from the field names in the Espresso++ expression:
+
+```sh
+$ espressopp generate sql "age gte 30 and weight lt 80" age=min_age weight=body_weight
+
+min_age >= 30 AND body_weight < 80
 ```
 
 Finally, the same Espresso++ expression translated into MongoDB query language:

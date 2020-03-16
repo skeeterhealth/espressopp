@@ -17,23 +17,28 @@ import (
 
 var cli struct {
 	Generate struct {
-		Target     string `arg name:"target" help:"Target query language." name:"target"`
-		Expression string `arg name:"expression" help:"Source expression." name:"expression"`
+		Target     string            `arg name:"target" help:"Target query language." name:"target"`
+		Expression string            `arg name:"expression" help:"Source expression." name:"expression"`
+		FieldMap   map[string]string `arg optional name:"fieldmap" help:"Mapping to native column names." type:"string:string"`
 	} `cmd help:"Generate target native query."`
 }
 
-// emitSql renders SQL from e.
-func emitSql(e string) (error, string) {
+// emitSql renders SQL from e applying m.
+func emitSql(e string, m map[string]string) {
 	r := strings.NewReader(e)
 	w := new(bytes.Buffer)
 
 	interpreter := espressopp.NewEspressoppInterpreter()
 	codeGenerator := espressopp.NewSqlCodeGenerator()
+	codeGenerator.MapFieldNames(m)
+
 	if err := interpreter.Accept(codeGenerator, r, w); err != nil {
-		return err, ""
+		msg := fmt.Errorf("Error generating sql from %v: %v", cli.Generate.Expression, err)
+		fmt.Println(msg)
+		return
 	}
 
-	return nil, w.String()
+	fmt.Println(w.String())
 }
 
 // main is the program's entry point.
@@ -47,18 +52,13 @@ func main() {
 			Summary: true,
 		}))
 
-	if ctx.Command() == "generate <target> <expression>" {
-		if strings.ToLower(cli.Generate.Target) == "sql" {
-			err, sql := emitSql(cli.Generate.Expression)
-			if err != nil {
-				msg := fmt.Errorf("Error generating sql from %v: %v", cli.Generate.Expression, err)
-				fmt.Println(msg)
-			} else {
-				fmt.Println(sql)
-			}
-		} else {
-			msg := fmt.Errorf("Target '%v' not supported.", cli.Generate.Target)
-			fmt.Println(msg)
+	switch ctx.Command() {
+	case "generate <target> <expression>", "generate <target> <expression> <fieldmap>":
+		switch strings.ToLower(cli.Generate.Target) {
+		case "sql":
+			emitSql(cli.Generate.Expression, cli.Generate.FieldMap)
+		default:
+			fmt.Println(fmt.Errorf("Target '%v' not supported.", cli.Generate.Target))
 		}
 	}
 }
