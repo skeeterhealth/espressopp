@@ -90,7 +90,7 @@ import (
 
 func main() {
     // map field names used in the query with actual column names
-	fieldNames := map[string]string{"age": "current_age"}
+	fieldNames := map[string]string{"age": "min_age"}
 	
 	r := strings.NewReader("age gte 30")
 	w := new(bytes.Buffer)
@@ -126,7 +126,7 @@ import (
 
 func main() {
     // map field names used in the query with actual column names
-	fieldNames := map[string]string{"age": "current_age"}
+	fieldNames := map[string]string{"age": "min_age"}
 	
 	r := strings.NewReader("age gte 30")
 	w := new(bytes.Buffer)
