@@ -6,7 +6,11 @@
 
 package espressopp
 
-import "io"
+import (
+	"io"
+
+	"github.com/pkg/errors"
+)
 
 // EspressoppInterpreter is the Interpreter implementation that provides
 // functionality for parsing Espresso++ expressions.
@@ -25,6 +29,10 @@ func NewEspressoppInterpreter() Interpreter {
 // invokes i to parse the Espresso++ expressions in r and get back the grammar,
 // which is then used to produce the native query into w.
 func (i *EspressoppInterpreter) Accept(cg CodeGenerator, r io.Reader, w io.Writer) error {
+	if cg == nil {
+		return errors.New("code generator not specified")
+	}
+
 	return cg.Visit(i, r, w)
 }
 
