@@ -27,6 +27,21 @@ func NewRenderingOptions() *RenderingOptions {
 	}
 }
 
+// NewRenderingOptionsFromFieldNames creates a new instance of RenderingOptions
+// from the specified map.
+func NewRenderingOptionsFromFieldNames(fn map[string]string) *RenderingOptions {
+	ro := NewRenderingOptions()
+
+	for k, v := range fn {
+		ro.AddFieldProps(k, &FieldProps{
+			Filterable: true,
+			NativeName: v,
+		})
+	}
+
+	return ro
+}
+
 // AddFieldProps adds the specified field properties to the rendering options.
 func (ro *RenderingOptions) AddFieldProps(fieldName string, fp *FieldProps) error {
 	if len(fieldName) == 0 {
@@ -47,25 +62,17 @@ func (ro *RenderingOptions) AddFieldProps(fieldName string, fp *FieldProps) erro
 
 // RemoveFieldProps removes the properties of the specified field from the
 // rendering options.
-func (ro *RenderingOptions) RemoveFieldProps(fieldName string) (error, *FieldProps) {
-	if len(fieldName) == 0 {
-		return errors.New("field name not specified"), nil
-	}
-
+func (ro *RenderingOptions) RemoveFieldProps(fieldName string) *FieldProps {
 	fp := ro.fields[fieldName]
 	if fp != nil {
 		delete(ro.fields, fieldName)
 	}
 
-	return nil, fp
+	return fp
 }
 
 // GetFieldProps retrieves the properties of the specified field from the
 // rendering options.
-func (ro *RenderingOptions) GetFieldProps(fieldName string) (error, *FieldProps) {
-	if len(fieldName) == 0 {
-		return errors.New("field name not specified"), nil
-	}
-
-	return nil, ro.fields[fieldName]
+func (ro *RenderingOptions) GetFieldProps(fieldName string) *FieldProps {
+	return ro.fields[fieldName]
 }
