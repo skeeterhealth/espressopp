@@ -10,7 +10,13 @@ import "github.com/pkg/errors"
 
 // FieldProps is the set of properties associated with a field.
 type FieldProps struct {
+	// Filterable specifies whether or not the field can be used in a query. If
+	// not and an expression actually contains it, the underlying CodeGenerator
+	// implementation shall raise an error.
 	Filterable bool
+
+	// NativeName is used to map those fields in an input expression that do
+	// not match the field names of the underlying database.
 	NativeName string
 }
 
@@ -27,16 +33,48 @@ func NewRenderingOptions() *RenderingOptions {
 	}
 }
 
-// NewRenderingOptionsFromFieldNames creates a new instance of RenderingOptions
-// from the specified map.
-func NewRenderingOptionsFromFieldNames(fn map[string]string) *RenderingOptions {
-	ro := NewRenderingOptions()
+// Fields initializes the fields rendering options with the specified map of
+// fieldName:fieldProps items. Previous fields rendering options are lost. If
+// m is nil then all fields rendering options are removed.
+func (ro *RenderingOptions) Fields(m map[string]*FieldProps) *RenderingOptions {
+	for k := range ro.fields {
+		delete(ro.fields, k)
+	}
 
-	for k, v := range fn {
-		ro.AddFieldProps(k, &FieldProps{
-			Filterable: true,
-			NativeName: v,
-		})
+	if m != nil {
+		for k, v := range m {
+			if len(v.NativeName) == 0 {
+				v.NativeName = k
+			}
+			ro.fields[k] = &FieldProps{
+				Filterable: v.Filterable,
+				NativeName: v.NativeName,
+			}
+		}
+	}
+
+	return ro
+}
+
+// FieldsWithDefault initializes the fields rendering options with the specified
+// map of fieldName:nativeFieldName items. Previous fields rendering options are
+// lost and Filterable is default to true for each field. If m is nil then all
+// fields rendering options are removed.
+func (ro *RenderingOptions) FieldsWithDefault(m map[string]string) *RenderingOptions {
+	for k := range ro.fields {
+		delete(ro.fields, k)
+	}
+
+	if m != nil {
+		for k, v := range m {
+			if len(v) == 0 {
+				v = k
+			}
+			ro.fields[k] = &FieldProps{
+				Filterable: true,
+				NativeName: v,
+			}
+		}
 	}
 
 	return ro
@@ -50,10 +88,6 @@ func (ro *RenderingOptions) AddFieldProps(fieldName string, fp *FieldProps) erro
 
 	if fp == nil {
 		return errors.Errorf("properties for field %v not specified", fieldName)
-	}
-
-	if len(fp.NativeName) == 0 {
-		fp.NativeName = fieldName
 	}
 
 	ro.fields[fieldName] = fp

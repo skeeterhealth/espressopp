@@ -35,14 +35,19 @@ const (
 // SqlCodeGenerator is the CodeGenerator implementation that produces native SQL
 // from Espresso++ expressions.
 type SqlCodeGenerator struct {
-	fieldNames map[string]string
+	renderingOptions *RenderingOptions
 }
 
 // NewSqlCodeGenerator creates a new instance of SqlCodeGenerator.
 func NewSqlCodeGenerator() CodeGenerator {
 	return &SqlCodeGenerator{
-		fieldNames: make(map[string]string),
+		renderingOptions: NewRenderingOptions(),
 	}
+}
+
+// GetRenderingOptions gets the rendering options used by the SqlCodeGenerator.
+func (cg *SqlCodeGenerator) GetRenderingOptions() *RenderingOptions {
+	return cg.renderingOptions
 }
 
 // Visit lets cg access the functionality provided by i to parse the Espresso++
@@ -67,14 +72,6 @@ func (cg *SqlCodeGenerator) Visit(i Interpreter, r io.Reader, w io.Writer) error
 
 	_, err = io.WriteString(w, s)
 	return err
-}
-
-// MapFieldNames lets the client application map each field in the input expression
-// with a different name in the output SQL query. This Mapping is only necessary for
-// those fields in the input expression that do not match the field names of the
-// underlying database. If m is nil, then no mapping is applied.
-func (cg *SqlCodeGenerator) MapFieldNames(m map[string]string) {
-	cg.fieldNames = m
 }
 
 // emitGrammar renders g.
@@ -330,7 +327,7 @@ func (cg *SqlCodeGenerator) emitTerm(t *Term) (error, string, termType) {
 	var tt termType
 
 	if t.Identifier != nil {
-		s = cg.lookupFieldName(*t.Identifier)
+		s = cg.applyRenderingOptions(*t.Identifier)
 		tt = identType
 	} else if t.Integer != nil {
 		s = strconv.Itoa(*t.Integer)
@@ -530,11 +527,10 @@ func (cg *SqlCodeGenerator) toTypeName(t termType) string {
 	return n
 }
 
-// lookupFieldName gets the native field name associated with f. If no mapping is
-// found, then f is returned.
-func (cg *SqlCodeGenerator) lookupFieldName(f string) string {
-	if val, ok := cg.fieldNames[f]; ok {
-		return val
+// applyRenderingOptions applies the rendering options to f.
+func (cg *SqlCodeGenerator) applyRenderingOptions(f string) string {
+	if val, ok := cg.renderingOptions.fields[f]; ok {
+		return val.NativeName
 	}
 
 	return f
