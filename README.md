@@ -89,15 +89,18 @@ import (
 )
 
 func main() {
-    // map field names used in the query with actual column names
-    fieldNames := map[string]string{"age": "min_age"}
+    // properties for field "age"
+    fieldProps := &espressopp.FieldProps{
+        Filterable: true,       // whether it can be queried
+        NativeName: "min_age",  // actual column name
+    }
 
     r := strings.NewReader("age gte 30")
     w := new(bytes.Buffer)
 
     interpreter := espressopp.NewEspressoppInterpreter()
     codeGenerator := espressopp.NewSqlCodeGenerator()
-    coddGenerator.MapFieldNames(fieldNames)
+    coddGenerator.GetRenderingOptions().AddFieldProps("age", fieldProps)
     err := interpreter.Accept(codeGenerator, r, w)
 
     if err != nil {
@@ -125,21 +128,24 @@ import (
 )
 
 func main() {
-    // map field names used in the query with actual column names
-    fieldNames := map[string]string{"age": "min_age"}
+    // properties for field "age"
+    fieldProps := &espressopp.FieldProps{
+        Filterable: true,       // whether it can be queried
+        NativeName: "min_age",  // actual column name
+    }
 
     r := strings.NewReader("age gte 30")
     w := new(bytes.Buffer)
 
     interpreter := espressopp.NewEspressoppInterpreter()
     codeGenerator := espressopp.NewMongoCodeGenerator()
-    coddGenerator.MapFieldNames(fieldNames)
+    coddGenerator.GetRenderingOptions().AddFieldProps("age", fieldProps)
     err := interpreter.Accept(codeGenerator, r, w)
 
     if err != nil {
         buf := new(bytes.Buffer)
         buf.ReadFrom(r)
-        msg := fmt.Errorf("Error generating sql from %v: %v", buf.String(), err)
+        msg := fmt.Errorf("Error generating mongo from %v: %v", buf.String(), err)
         fmt.Println(msg)
     } else {
         fmt.Println(w.String())
