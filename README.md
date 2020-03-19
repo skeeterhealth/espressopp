@@ -89,9 +89,8 @@ import (
 )
 
 func main() {
-    // properties for field "age"
-    fieldProps := &espressopp.FieldProps{
-        Filterable: true,       // whether it can be queried
+    ageProps := &espressopp.FieldProps{
+        Filterable: true,       // whether "age" can be queried
         NativeName: "min_age",  // actual column name
     }
 
@@ -100,7 +99,7 @@ func main() {
 
     interpreter := espressopp.NewEspressoppInterpreter()
     codeGenerator := espressopp.NewSqlCodeGenerator()
-    coddGenerator.GetRenderingOptions().AddFieldProps("age", fieldProps)
+    coddGenerator.GetRenderingOptions().AddFieldProps("age", ageProps)
     err := interpreter.Accept(codeGenerator, r, w)
 
     if err != nil {
@@ -128,9 +127,8 @@ import (
 )
 
 func main() {
-    // properties for field "age"
-    fieldProps := &espressopp.FieldProps{
-        Filterable: true,       // whether it can be queried
+    ageProps := &espressopp.FieldProps{
+        Filterable: true,       // whether "age" can be queried
         NativeName: "min_age",  // actual column name
     }
 
@@ -139,7 +137,7 @@ func main() {
 
     interpreter := espressopp.NewEspressoppInterpreter()
     codeGenerator := espressopp.NewMongoCodeGenerator()
-    coddGenerator.GetRenderingOptions().AddFieldProps("age", fieldProps)
+    coddGenerator.GetRenderingOptions().AddFieldProps("age", ageProps)
     err := interpreter.Accept(codeGenerator, r, w)
 
     if err != nil {
