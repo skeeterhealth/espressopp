@@ -35,19 +35,15 @@ const (
 // SqlCodeGenerator is the CodeGenerator implementation that produces native SQL
 // from Espresso++ expressions.
 type SqlCodeGenerator struct {
-	renderingOptions *RenderingOptions
+	// RenderingOptions is used to control the way native SQL is produced.
+	RenderingOptions *RenderingOptions
 }
 
 // NewSqlCodeGenerator creates a new instance of SqlCodeGenerator.
-func NewSqlCodeGenerator() CodeGenerator {
+func NewSqlCodeGenerator() *SqlCodeGenerator {
 	return &SqlCodeGenerator{
-		renderingOptions: NewRenderingOptions(),
+		RenderingOptions: NewRenderingOptions(),
 	}
-}
-
-// GetRenderingOptions gets the rendering options used by the SqlCodeGenerator.
-func (cg *SqlCodeGenerator) GetRenderingOptions() *RenderingOptions {
-	return cg.renderingOptions
 }
 
 // Visit lets cg access the functionality provided by i to parse the Espresso++
@@ -327,7 +323,7 @@ func (cg *SqlCodeGenerator) emitTerm(t *Term) (error, string, termType) {
 	var tt termType
 
 	if t.Identifier != nil {
-		s = cg.applyRenderingOptions(*t.Identifier)
+		err, s = cg.applyRenderingOptions(*t.Identifier)
 		tt = identType
 	} else if t.Integer != nil {
 		s = strconv.Itoa(*t.Integer)
@@ -528,10 +524,15 @@ func (cg *SqlCodeGenerator) toTypeName(t termType) string {
 }
 
 // applyRenderingOptions applies the rendering options to f.
-func (cg *SqlCodeGenerator) applyRenderingOptions(f string) string {
-	if val, ok := cg.renderingOptions.fields[f]; ok {
-		return val.NativeName
+func (cg *SqlCodeGenerator) applyRenderingOptions(f string) (error, string) {
+	if cg.RenderingOptions != nil {
+		if val := cg.RenderingOptions.GetFieldProps(f); val != nil {
+			if !val.Filterable {
+				return errors.Errorf("field %v is not filterable", f), ""
+			}
+			return nil, val.NativeName
+		}
 	}
 
-	return f
+	return nil, f
 }

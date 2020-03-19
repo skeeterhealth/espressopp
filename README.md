@@ -99,7 +99,7 @@ func main() {
 
     interpreter := espressopp.NewEspressoppInterpreter()
     codeGenerator := espressopp.NewSqlCodeGenerator()
-    coddGenerator.GetRenderingOptions().AddFieldProps("age", ageProps)
+    coddGenerator.RenderingOptions.AddFieldProps("age", ageProps)
     err := interpreter.Accept(codeGenerator, r, w)
 
     if err != nil {
@@ -137,7 +137,7 @@ func main() {
 
     interpreter := espressopp.NewEspressoppInterpreter()
     codeGenerator := espressopp.NewMongoCodeGenerator()
-    coddGenerator.GetRenderingOptions().AddFieldProps("age", ageProps)
+    coddGenerator.RenderingOptions.AddFieldProps("age", ageProps)
     err := interpreter.Accept(codeGenerator, r, w)
 
     if err != nil {

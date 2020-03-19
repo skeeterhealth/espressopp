@@ -30,11 +30,9 @@ func emitSql(e string, m map[string]string) {
 
 	interpreter := espressopp.NewEspressoppInterpreter()
 	codeGenerator := espressopp.NewSqlCodeGenerator()
-	codeGenerator.GetRenderingOptions().FieldsWithDefault(m)
-
+	codeGenerator.RenderingOptions.FieldsWithDefault(m)
 	if err := interpreter.Accept(codeGenerator, r, w); err != nil {
-		msg := fmt.Errorf("Error generating sql from %v: %v", cli.Generate.Expression, err)
-		fmt.Println(msg)
+		fmt.Println(err)
 		return
 	}
 

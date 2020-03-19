@@ -19,7 +19,7 @@ type EspressoppInterpreter struct {
 }
 
 // NewEspressoppInterpreter creates a new instance of EspressoppInterpreter.
-func NewEspressoppInterpreter() Interpreter {
+func NewEspressoppInterpreter() *EspressoppInterpreter {
 	return &EspressoppInterpreter{
 		parser: newParser(),
 	}

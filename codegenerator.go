@@ -18,8 +18,4 @@ type CodeGenerator interface {
 	// back the grammar, which is then used to produce the native query into
 	// the specified writer.
 	Visit(Interpreter, io.Reader, io.Writer) error
-
-	// GetRenderingOptions gets the rendering options used by the CodeGenerator
-	// implementation.
-	GetRenderingOptions() *RenderingOptions
 }
