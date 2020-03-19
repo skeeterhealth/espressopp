@@ -51,7 +51,7 @@ clean:
 
 test: $(MAKE_TSTDIR)
 	$(eval FILENAME := cover_$$(TIMESTAMP))
-	@-go test -coverprofile=$(TSTDIR)/$(FILENAME).txt .
+	@go test -coverprofile=$(TSTDIR)/$(FILENAME).txt .
 ifeq (, $(wildcard $(TSTDIR)/$(FILENAME).txt))
 	@go tool cover -html=$(TSTDIR)/$(FILENAME).txt -o $(TSTDIR)/$(FILENAME).html
 endif
