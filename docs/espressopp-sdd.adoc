@@ -102,7 +102,6 @@ class EspressoppInterpreter {
 }
 abstract class CodeGenerator <<interface>> {
   +Visit(Interpreter, Reader, Writer)
-  +GetRenderingOptions()
 }
 class SqlCodeGenerator {
   +RenderingOptions: RenderingOptions
