@@ -102,11 +102,20 @@ class EspressoppInterpreter {
 }
 abstract class CodeGenerator <<interface>> {
   +Visit(Interpreter, Reader, Writer)
-  +MapFieldNames(Map)
+  +GetRenderingOptions()
 }
 class SqlCodeGenerator {
+  +RenderingOptions: RenderingOptions
   +Visit(Interpreter, Reader, Writer)
-  +MapFieldNames(Map)
+}
+class FieldProps {
+  +Filterable: Bool
+  +NativeName: String
+}
+class RenderingOptions {
+  +AddFieldProps(String, FieldProps)
+  +GetFieldProps(String): FieldProps
+  +DeleteFieldProps(String): FieldProps
 }
 class Parser{
   +Parse(Reader): Grammar
@@ -119,6 +128,8 @@ Client ..> CodeGenerator
 Interpreter <|-- EspressoppInterpreter : extends
 note left: Call CodeGenerator.Visit(Interpreter, ...)
 CodeGenerator <|-- SqlCodeGenerator : extends
+SqlCodeGenerator o-- RenderingOptions
+RenderingOptions ||--|{ FieldProps
 EspressoppInterpreter o-- Parser
 Grammar --* Parser
 ----
@@ -196,7 +207,11 @@ is where the `CodeGenerator` writes the resulting native query.
 
 By default field names in the input {espressopp} expression remain unchanged in the output native
 query. Should not the fields in the {espressopp} expression match the name of the fields in the
-underlying databse, a mapping needs to be provided by calling `MapFieldNames`.
+underlying database, a mapping needs to be provided by means of the `RenderingOptions`.
+
+The `RenderingOptions` is used by `CodeGenerator` implementations to control the way output queries
+are generated, and it might be associated with one or more `FieldProps` instances. A `FieldProps`
+specifies the native name of the field and whether it can be queried.
 
 [[process-view]]
 == Process View
