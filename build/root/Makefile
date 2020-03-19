@@ -15,7 +15,7 @@ SRC = $(shell find . -type f -name '*.go')
 # documentation directory
 DOCSDIR := ${CURDIR}/docs
 
-# create outputdirectory
+# create output directory
 OUTDIR := ${CURDIR}/out
 MAKE_OUTDIR = $(shell mkdir -p $(OUTDIR))
 
