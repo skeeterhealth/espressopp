@@ -530,7 +530,9 @@ func (cg *SqlCodeGenerator) applyRenderingOptions(f string) (error, string) {
 			if !val.Filterable {
 				return errors.Errorf("field %v is not filterable", f), ""
 			}
-			return nil, val.NativeName
+			if len(val.NativeName) > 0 {
+				return nil, val.NativeName
+			}
 		}
 	}
 

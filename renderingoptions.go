@@ -90,6 +90,10 @@ func (ro *RenderingOptions) AddFieldProps(fieldName string, fp *FieldProps) erro
 		return errors.Errorf("properties for field %v not specified", fieldName)
 	}
 
+	if len(fp.NativeName) == 0 {
+		fp.NativeName = fieldName
+	}
+
 	ro.fields[fieldName] = fp
 	return nil
 }
