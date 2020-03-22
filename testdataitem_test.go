@@ -23,7 +23,9 @@ func getTestDataItems() []testDataItem {
 		{"ident neq 'text'", "ident <> 'text'", false},
 
 		{"ident is true", "ident = 1", false},
+		{"ident eq true", "ident = 1", false},
 		{"ident is false", "ident = 0", false},
+		{"ident eq false", "ident = 0", false},
 		{"ident is null", "ident IS NULL", false},
 		{"ident is not null", "ident IS NOT NULL", false},
 		{"is ident", "ident = 1", false},
