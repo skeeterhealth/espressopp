@@ -23,7 +23,7 @@ type Term struct {
 	Date       *string  `| @Date`
 	Time       *string  `| @Time`
 	DateTime   *string  `| @DateTime`
-	Bool       *bool    `| @("true" | "false")`
+	Bool       *string  `| @Bool`
 	Macro      *Macro   `| @@`
 }
 
@@ -120,6 +120,7 @@ var (
 		Date = "\"" date "\"" | "'" date "'" .
 		Time = "\"" time "\"" | "'" time "'" .
 		DateTime = "\"" date "T" time [ "+" digit digit ] "\"" | "'" date "T" time [ "+" digit digit  ] "'" .
+		Bool = "true" | "false" .
 		Ident = ident .
 		Macro = "#" ident .
 		String = "\"" { "\u0000"…"\uffff"-"\""-"\\" | "\\" any } "\"" | "'" { "\u0000"…"\uffff"-"'"-"\\" | "\\" any } "'" .
