@@ -344,7 +344,11 @@ func (cg *SqlCodeGenerator) emitTerm(t *Term) (error, string, termType) {
 		s = fmt.Sprintf("'%s'", strings.Replace(*t.DateTime, "T", " ", -1))
 		tt = dateTimeType
 	} else if t.Bool != nil {
-		s = strconv.FormatBool(*t.Bool)
+		if *t.Bool == "true" {
+			s = "1"
+		} else {
+			s = "0"
+		}
 		tt = boolType
 	} else if t.Macro != nil {
 		err, s, tt = cg.emitMacro(t.Macro)
