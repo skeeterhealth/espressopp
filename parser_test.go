@@ -189,7 +189,7 @@ func emitTerm(t *Term) string {
 	} else if t.DateTime != nil {
 		s = fmt.Sprintf("'%s'", *t.DateTime)
 	} else if t.Bool != nil {
-		s = strconv.FormatBool(*t.Bool)
+		s = *t.Bool
 	} else if t.Macro != nil {
 		s = emitMacro(t.Macro)
 	}
