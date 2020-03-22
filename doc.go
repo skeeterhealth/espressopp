@@ -26,15 +26,18 @@
 //
 //      interpreter := espressopp.NewEspressoppInterpreter()
 //      codeGenerator := espressopp.NewSqlCodeGenerator()
+//      codeGenerator.RenderingOptions.EnableNamedParams()
 //      err := interpreter.Accept(codeGenerator, r, w)
 //
 //      if err != nil {
-//          buf := new(bytes.Buffer)
-//          buf.ReadFrom(r)
-//          msg := fmt.Errorf("Error generating sql from %v: %v", buf.String(), err)
-//          fmt.Println(msg)
+//          msg := fmt.Errorf("Error generating sql: %v", err)
+//          fmt.Println(err)
 //      } else {
 //          fmt.Println(w.String())
+//          _, namedParamValues := codeGenerator.RenderingOptions.GetNamedParamValues()
+//          for k, v := range namedParamValues {
+//              fmt.Printf("%s: %s\n", k, v)
+//          }
 //      }
 // }
 package espressopp

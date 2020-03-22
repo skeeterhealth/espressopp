@@ -99,21 +99,27 @@ func main() {
 
     interpreter := espressopp.NewEspressoppInterpreter()
     codeGenerator := espressopp.NewSqlCodeGenerator()
-    coddGenerator.RenderingOptions.AddFieldProps("age", ageProps)
+    codeGenerator.RenderingOptions.AddFieldProps("age", ageProps)
+    codeGenerator.RenderingOptions.EnableNamedParams()
     err := interpreter.Accept(codeGenerator, r, w)
 
     if err != nil {
-        buf := new(bytes.Buffer)
-        buf.ReadFrom(r)
-        msg := fmt.Errorf("Error generating sql from %v: %v", buf.String(), err)
+        msg := fmt.Errorf("Error generating sql: %v", err)
         fmt.Println(msg)
     } else {
+        // generated query contains named parameters instead of actual values
         fmt.Println(w.String())
+
+        // list named parameter values associated with the generated query
+        _, namedParamValues := codeGenerator.RenderingOptions.GetNamedParamValues()
+        for k, v := range namedParamValues {
+            fmt.Printf("%s: %s\n", k, v)
+        }
     }
 }
 ```
 
-If Espresso++ supported MongoDB, the client code would be something like this: 
+If Espresso++ supported MongoDB, the client code would be something like this:
 
 ```go
 package main
@@ -137,13 +143,11 @@ func main() {
 
     interpreter := espressopp.NewEspressoppInterpreter()
     codeGenerator := espressopp.NewMongoCodeGenerator()
-    coddGenerator.RenderingOptions.AddFieldProps("age", ageProps)
+    codeGenerator.RenderingOptions.AddFieldProps("age", ageProps)
     err := interpreter.Accept(codeGenerator, r, w)
 
     if err != nil {
-        buf := new(bytes.Buffer)
-        buf.ReadFrom(r)
-        msg := fmt.Errorf("Error generating mongo from %v: %v", buf.String(), err)
+        msg := fmt.Errorf("Error generating mongo: %v", err)
         fmt.Println(msg)
     } else {
         fmt.Println(w.String())
@@ -187,6 +191,8 @@ Arguments:
 
 Flags:
   --help    Show context-sensitive help.
+
+  -e, --enable-named-params    Enable named parameters.
 ```
 
 For example, let's translate the Espresso++ expression `age gte 30 and weight lt 80` into SQL:
@@ -203,6 +209,18 @@ And let's suppose the native column names differ from the field names in the Esp
 $ espressopp generate sql "age gte 30 and weight lt 80" age=min_age weight=body_weight
 
 min_age >= 30 AND body_weight < 80
+```
+Literals in the generated query can be replaced with named parameters to improve security:
+
+```sh
+$ espressopp generate sql -e "age gte 30 and weight lt 80" age=min_age weight=body_weight
+
+min_age >= :P1 AND body_weigh < :P2
+
+Named Parameters
+================
+P1: 30
+P2: 80
 ```
 
 Finally, the same Espresso++ expression translated into MongoDB query language:

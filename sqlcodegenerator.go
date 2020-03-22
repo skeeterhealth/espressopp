@@ -323,33 +323,34 @@ func (cg *SqlCodeGenerator) emitTerm(t *Term) (error, string, termType) {
 	var tt termType
 
 	if t.Identifier != nil {
-		err, s = cg.applyRenderingOptions(*t.Identifier)
 		tt = identType
+		err, s = cg.applyRenderingOptions(*t.Identifier, tt)
 	} else if t.Integer != nil {
-		s = strconv.Itoa(*t.Integer)
 		tt = intType
+		err, s = cg.applyRenderingOptions(strconv.Itoa(*t.Integer), tt)
 	} else if t.Decimal != nil {
-		s = strconv.FormatFloat(*t.Decimal, 'f', -1, 64)
 		tt = decimalType
+		err, s = cg.applyRenderingOptions(strconv.FormatFloat(*t.Decimal, 'f', -1, 64), tt)
 	} else if t.String != nil {
-		s = fmt.Sprintf("'%s'", *t.String)
 		tt = stringType
+		err, s = cg.applyRenderingOptions(fmt.Sprintf("'%s'", *t.String), tt)
 	} else if t.Date != nil {
-		s = fmt.Sprintf("'%s'", *t.Date)
 		tt = dateType
+		err, s = cg.applyRenderingOptions(fmt.Sprintf("'%s'", *t.Date), tt)
 	} else if t.Time != nil {
-		s = fmt.Sprintf("'%s'", *t.Time)
 		tt = timeType
+		err, s = cg.applyRenderingOptions(fmt.Sprintf("'%s'", *t.Time), tt)
 	} else if t.DateTime != nil {
-		s = fmt.Sprintf("'%s'", strings.Replace(*t.DateTime, "T", " ", -1))
 		tt = dateTimeType
+		err, s = cg.applyRenderingOptions(fmt.Sprintf("'%s'", strings.Replace(*t.DateTime, "T", " ", -1)), tt)
 	} else if t.Bool != nil {
+		tt = boolType
 		if *t.Bool == "true" {
 			s = "1"
 		} else {
 			s = "0"
 		}
-		tt = boolType
+		err, s = cg.applyRenderingOptions(s, tt)
 	} else if t.Macro != nil {
 		err, s, tt = cg.emitMacro(t.Macro)
 	}
@@ -528,15 +529,22 @@ func (cg *SqlCodeGenerator) toTypeName(t termType) string {
 }
 
 // applyRenderingOptions applies the rendering options to f.
-func (cg *SqlCodeGenerator) applyRenderingOptions(f string) (error, string) {
+func (cg *SqlCodeGenerator) applyRenderingOptions(f string, t termType) (error, string) {
 	if cg.RenderingOptions != nil {
-		if val := cg.RenderingOptions.GetFieldProps(f); val != nil {
-			if !val.Filterable {
-				return errors.Errorf("field %v is not filterable", f), ""
+		if t == identType {
+			if val := cg.RenderingOptions.GetFieldProps(f); val != nil {
+				if !val.Filterable {
+					return errors.Errorf("field %v is not filterable", f), ""
+				}
+				if len(val.NativeName) > 0 {
+					return nil, val.NativeName
+				}
 			}
-			if len(val.NativeName) > 0 {
-				return nil, val.NativeName
-			}
+		} else if cg.RenderingOptions.NamedParamsEnabled() {
+			_, v := cg.RenderingOptions.GetNamedParamValues()
+			paramName := fmt.Sprintf("P%d", len(v)+1)
+			v[paramName] = f
+			return nil, ":" + paramName
 		}
 	}
 
