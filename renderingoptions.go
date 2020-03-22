@@ -20,16 +20,29 @@ type FieldProps struct {
 	NativeName string
 }
 
+// namedParams lets code generators render named parameters and set aside their
+// values for client code.
+type namedParams struct {
+	// enabled specifies whether or not named parameters are enabled.
+	enabled bool
+
+	// values contains the values of the named parameters present in rendered
+	// code.
+	values map[string]string
+}
+
 // RenderingOptions is the set of options used by CodeGenerator implementations
 // to control the way target code is generated.
 type RenderingOptions struct {
-	fields map[string]*FieldProps
+	fields      map[string]*FieldProps
+	namedParams *namedParams
 }
 
 // NewRenderingOptions creates a new instance of RenderingOptions.
 func NewRenderingOptions() *RenderingOptions {
 	return &RenderingOptions{
-		fields: make(map[string]*FieldProps),
+		fields:      make(map[string]*FieldProps),
+		namedParams: &namedParams{},
 	}
 }
 
@@ -113,4 +126,34 @@ func (ro *RenderingOptions) RemoveFieldProps(fieldName string) *FieldProps {
 // rendering options.
 func (ro *RenderingOptions) GetFieldProps(fieldName string) *FieldProps {
 	return ro.fields[fieldName]
+}
+
+// EnableNamedParams enables named parameters in rendered code.
+func (ro *RenderingOptions) EnableNamedParams() {
+	if !ro.namedParams.enabled {
+		ro.namedParams.enabled = true
+		ro.namedParams.values = make(map[string]string)
+	}
+}
+
+// DisableNamedParams disables named parameters in rendered code.
+func (ro *RenderingOptions) DisableNamedParams() {
+	ro.namedParams.enabled = false
+	ro.namedParams.values = nil
+}
+
+// NamedParamsEnabled returns a Boolean value indicating whether or not
+// named parameters are enabled.
+func (ro *RenderingOptions) NamedParamsEnabled() bool {
+	return ro.namedParams.enabled
+}
+
+// GetNamedParamValues returns a map containing the values of the named
+// parameters present in rendered code.
+func (ro *RenderingOptions) GetNamedParamValues() (error, map[string]string) {
+	if !ro.namedParams.enabled {
+		return errors.New("named parameters not enabled"), nil
+	}
+
+	return nil, ro.namedParams.values
 }
