@@ -46,6 +46,28 @@ func NewRenderingOptions() *RenderingOptions {
 	}
 }
 
+// Clone performs a shallow copy of read-only data and a deep copy of
+// read-write data. Read-only data includes field properties whereas
+// read-write data includes named parameters.
+func (ro *RenderingOptions) Clone() *RenderingOptions {
+	var m map[string]string
+
+	if ro.namedParams.values != nil {
+		m = make(map[string]string)
+		for k, v := range ro.namedParams.values {
+			m[k] = v
+		}
+	}
+
+	return &RenderingOptions{
+		fields: ro.fields,
+		namedParams: &namedParams{
+			enabled: ro.namedParams.enabled,
+			values:  m,
+		},
+	}
+}
+
 // Fields initializes the fields rendering options with the specified map of
 // fieldName:fieldProps items. Previous fields rendering options are lost. If
 // m is nil then all fields rendering options are removed.
