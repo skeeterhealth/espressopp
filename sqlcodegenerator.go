@@ -542,7 +542,7 @@ func (cg *SqlCodeGenerator) applyRenderingOptions(f string, t termType) (error, 
 			}
 		} else if cg.RenderingOptions.NamedParamsEnabled() {
 			_, v := cg.RenderingOptions.GetNamedParamValues()
-			paramName := fmt.Sprintf("P%d", len(v)+1)
+			paramName := fmt.Sprintf("%s%d", cg.RenderingOptions.GetNamedParamsPrefix(), len(v)+1)
 			v[paramName] = f
 			return nil, ":" + paramName
 		}

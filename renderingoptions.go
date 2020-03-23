@@ -26,6 +26,9 @@ type namedParams struct {
 	// enabled specifies whether or not named parameters are enabled.
 	enabled bool
 
+	// prefix specifies the string that is prepended to parameter names.
+	prefix string
+
 	// values contains the values of the named parameters present in rendered
 	// code.
 	values map[string]string
@@ -38,11 +41,17 @@ type RenderingOptions struct {
 	namedParams *namedParams
 }
 
+const (
+	defaultPrefix = "P"
+)
+
 // NewRenderingOptions creates a new instance of RenderingOptions.
 func NewRenderingOptions() *RenderingOptions {
 	return &RenderingOptions{
-		fields:      make(map[string]*FieldProps),
-		namedParams: &namedParams{},
+		fields: make(map[string]*FieldProps),
+		namedParams: &namedParams{
+			prefix: defaultPrefix,
+		},
 	}
 }
 
@@ -63,6 +72,7 @@ func (ro *RenderingOptions) Clone() *RenderingOptions {
 		fields: ro.fields,
 		namedParams: &namedParams{
 			enabled: ro.namedParams.enabled,
+			prefix:  ro.namedParams.prefix,
 			values:  m,
 		},
 	}
@@ -178,4 +188,19 @@ func (ro *RenderingOptions) GetNamedParamValues() (error, map[string]string) {
 	}
 
 	return nil, ro.namedParams.values
+}
+
+// SetNamedParamsPrefix sets the string that is prepended to parameter names.
+func (ro *RenderingOptions) SetNamedParamsPrefix(p string) {
+	prefix := p
+	if prefix == "" {
+		prefix = defaultPrefix
+	}
+
+	ro.namedParams.prefix = prefix
+}
+
+// getNamedParamsPrefix gets the string that is prepended to parameter names.
+func (ro *RenderingOptions) GetNamedParamsPrefix() string {
+	return ro.namedParams.prefix
 }
