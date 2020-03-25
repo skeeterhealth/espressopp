@@ -19,7 +19,7 @@ func TestParse(t *testing.T) {
 
 	for _, item := range getTestDataItems() {
 		r := strings.NewReader(item.input)
-		_, grammar := parser.parse(r)
+		grammar, _ := parser.parse(r)
 
 		result := emitGrammar(grammar)
 

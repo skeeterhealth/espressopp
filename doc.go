@@ -34,7 +34,7 @@
 //          fmt.Println(err)
 //      } else {
 //          fmt.Println(w.String())
-//          _, namedParamValues := codeGenerator.RenderingOptions.GetNamedParamValues()
+//          namedParamValues, _ := codeGenerator.RenderingOptions.GetNamedParamValues()
 //          for k, v := range namedParamValues {
 //              fmt.Printf("%s: %s\n", k, v)
 //          }

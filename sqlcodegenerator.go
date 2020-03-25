@@ -54,14 +54,14 @@ func (cg *SqlCodeGenerator) Visit(i Interpreter, r io.Reader, w io.Writer) error
 		return errors.New("interpreter not specified")
 	}
 
-	err, grammar := i.Parse(r)
+	grammar, err := i.Parse(r)
 	if err != nil {
 		buf := new(bytes.Buffer)
 		buf.ReadFrom(r)
 		return errors.Wrapf(err, "error parsing %v", buf.String())
 	}
 
-	err, s := cg.emitGrammar(grammar)
+	s, err := cg.emitGrammar(grammar)
 	if err != nil {
 		return errors.Wrapf(err, "error generating sql")
 	}
@@ -71,47 +71,47 @@ func (cg *SqlCodeGenerator) Visit(i Interpreter, r io.Reader, w io.Writer) error
 }
 
 // emitGrammar renders g.
-func (cg *SqlCodeGenerator) emitGrammar(g *Grammar) (error, string) {
+func (cg *SqlCodeGenerator) emitGrammar(g *Grammar) (string, error) {
 	var err error
 	var sb strings.Builder
 
 	for _, e := range g.Expressions {
-		err, s := cg.emitExpression(e)
+		s, err := cg.emitExpression(e)
 		if err != nil {
-			return err, ""
+			return "", err
 		}
 		sb.WriteString(s)
 	}
 
-	return err, sb.String()
+	return sb.String(), err
 }
 
 // emitExpression renders e.
-func (cg *SqlCodeGenerator) emitExpression(e *Expression) (error, string) {
+func (cg *SqlCodeGenerator) emitExpression(e *Expression) (string, error) {
 	var err error
 	var s string
 
 	if e.Op != nil {
 		s = fmt.Sprintf(" %s ", strings.ToUpper(*e.Op))
 	} else if e.SubExpression != nil {
-		err, s = cg.emitSubExpression(e.SubExpression)
+		s, err = cg.emitSubExpression(e.SubExpression)
 	} else if e.Comparison != nil {
-		err, s = cg.emitComparison(e.Comparison)
+		s, err = cg.emitComparison(e.Comparison)
 	} else if e.Equality != nil {
-		err, s = cg.emitEquality(e.Equality)
+		s, err = cg.emitEquality(e.Equality)
 	} else if e.Range != nil {
-		err, s = cg.emitRange(e.Range)
+		s, err = cg.emitRange(e.Range)
 	} else if e.Match != nil {
-		err, s = cg.emitMatch(e.Match)
+		s, err = cg.emitMatch(e.Match)
 	} else if e.Is != nil {
-		err, s = cg.emitIs(e.Is)
+		s, err = cg.emitIs(e.Is)
 	}
 
-	return err, s
+	return s, err
 }
 
 // emitExpression renders se.
-func (cg *SqlCodeGenerator) emitSubExpression(se *SubExpression) (error, string) {
+func (cg *SqlCodeGenerator) emitSubExpression(se *SubExpression) (string, error) {
 	var err error
 	var sb strings.Builder
 
@@ -122,35 +122,35 @@ func (cg *SqlCodeGenerator) emitSubExpression(se *SubExpression) (error, string)
 	sb.WriteString("(")
 
 	for _, e := range se.Expressions {
-		err, s := cg.emitExpression(e)
+		s, err := cg.emitExpression(e)
 		if err != nil {
-			return err, ""
+			return "", err
 		}
 		sb.WriteString(s)
 	}
 
 	sb.WriteString(")")
 
-	return err, sb.String()
+	return sb.String(), err
 }
 
 // emitComparison renders c.
-func (cg *SqlCodeGenerator) emitComparison(c *Comparison) (error, string) {
-	err, t1, tt1 := cg.emitTermOrMath(c.TermOrMath1)
+func (cg *SqlCodeGenerator) emitComparison(c *Comparison) (string, error) {
+	t1, tt1, err := cg.emitTermOrMath(c.TermOrMath1)
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 
-	err, t2, tt2 := cg.emitTermOrMath(c.TermOrMath2)
+	t2, tt2, err := cg.emitTermOrMath(c.TermOrMath2)
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 
-	err, tt := cg.validateTypes(tt1, tt2)
+	tt, err := cg.validateTypes(tt1, tt2)
 	if err != nil {
-		return err, ""
+		return "", err
 	} else if tt != intType && tt != decimalType && tt != dateType && tt != timeType && tt != dateTimeType {
-		return errors.Errorf("cannot compare values of type %s", cg.toTypeName(tt)), ""
+		return "", errors.Errorf("cannot compare values of type %s", cg.toTypeName(tt))
 	}
 
 	var op string
@@ -165,24 +165,24 @@ func (cg *SqlCodeGenerator) emitComparison(c *Comparison) (error, string) {
 		op = "<="
 	}
 
-	return err, fmt.Sprintf("%s %s %s", t1, op, t2)
+	return fmt.Sprintf("%s %s %s", t1, op, t2), err
 }
 
 // emitEquality renders e.
-func (cg *SqlCodeGenerator) emitEquality(e *Equality) (error, string) {
-	err, t1, tt1 := cg.emitTermOrMath(e.TermOrMath1)
+func (cg *SqlCodeGenerator) emitEquality(e *Equality) (string, error) {
+	t1, tt1, err := cg.emitTermOrMath(e.TermOrMath1)
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 
-	err, t2, tt2 := cg.emitTermOrMath(e.TermOrMath2)
+	t2, tt2, err := cg.emitTermOrMath(e.TermOrMath2)
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 
-	err, _ = cg.validateTypes(tt1, tt2)
+	_, err = cg.validateTypes(tt1, tt2)
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 
 	var op string
@@ -193,59 +193,59 @@ func (cg *SqlCodeGenerator) emitEquality(e *Equality) (error, string) {
 		op = "<>"
 	}
 
-	return err, fmt.Sprintf("%s %s %s", t1, op, t2)
+	return fmt.Sprintf("%s %s %s", t1, op, t2), err
 }
 
 // emitRange renders r.
-func (cg *SqlCodeGenerator) emitRange(r *Range) (error, string) {
-	err, t1, tt1 := cg.emitTermOrMath(r.TermOrMath1)
+func (cg *SqlCodeGenerator) emitRange(r *Range) (string, error) {
+	t1, tt1, err := cg.emitTermOrMath(r.TermOrMath1)
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 
-	err, t2, tt2 := cg.emitTermOrMath(r.TermOrMath2)
+	t2, tt2, err := cg.emitTermOrMath(r.TermOrMath2)
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 
-	err, t3, tt3 := cg.emitTermOrMath(r.TermOrMath3)
+	t3, tt3, err := cg.emitTermOrMath(r.TermOrMath3)
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 
-	err, tt := cg.validateTypes(tt1, tt2)
+	tt, err := cg.validateTypes(tt1, tt2)
 	if err != nil {
-		return err, ""
+		return "", err
 	}
-	err, tt = cg.validateTypes(tt, tt3)
+	tt, err = cg.validateTypes(tt, tt3)
 	if err != nil {
-		return err, ""
+		return "", err
 	} else if tt != intType && tt != decimalType {
-		return errors.Errorf("cannot range values of type %s", cg.toTypeName(tt)), ""
+		return "", errors.Errorf("cannot range values of type %s", cg.toTypeName(tt))
 	}
 
-	return err, fmt.Sprintf("%s %s %s %s %s", t1,
+	return fmt.Sprintf("%s %s %s %s %s", t1,
 		strings.ToUpper(r.Between), t2,
-		strings.ToUpper(r.And), t3)
+		strings.ToUpper(r.And), t3), err
 }
 
 // emitMatch renders m.
-func (cg *SqlCodeGenerator) emitMatch(m *Match) (error, string) {
-	err, t1, tt1 := cg.emitTerm(m.Term1)
+func (cg *SqlCodeGenerator) emitMatch(m *Match) (string, error) {
+	t1, tt1, err := cg.emitTerm(m.Term1)
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 
-	err, t2, tt2 := cg.emitTerm(m.Term2)
+	t2, tt2, err := cg.emitTerm(m.Term2)
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 
-	err, tt := cg.validateTypes(tt1, tt2)
+	tt, err := cg.validateTypes(tt1, tt2)
 	if err != nil {
-		return err, ""
+		return "", err
 	} else if tt != stringType {
-		return errors.Errorf("cannot match values of type %s", cg.toTypeName(tt)), ""
+		return "", errors.Errorf("cannot match values of type %s", cg.toTypeName(tt))
 	}
 
 	t2 = strings.ReplaceAll(strings.ReplaceAll(t2, "'", ""), "\"", "")
@@ -259,11 +259,11 @@ func (cg *SqlCodeGenerator) emitMatch(m *Match) (error, string) {
 		t2 = fmt.Sprintf("'%%%s%%'", t2)
 	}
 
-	return err, fmt.Sprintf("%s %s %s", t1, "LIKE", t2)
+	return fmt.Sprintf("%s %s %s", t1, "LIKE", t2), err
 }
 
 // emitIs renders i.
-func (cg *SqlCodeGenerator) emitIs(i *Is) (error, string) {
+func (cg *SqlCodeGenerator) emitIs(i *Is) (string, error) {
 	var sb strings.Builder
 
 	if i.IsWithExplicitValue != nil {
@@ -294,55 +294,55 @@ func (cg *SqlCodeGenerator) emitIs(i *Is) (error, string) {
 		sb.WriteString(fmt.Sprintf(" = %s", boolean))
 	}
 
-	return nil, sb.String()
+	return sb.String(), nil
 }
 
 // emitTermOrMath renders tm.
-func (cg *SqlCodeGenerator) emitTermOrMath(tm *TermOrMath) (error, string, termType) {
+func (cg *SqlCodeGenerator) emitTermOrMath(tm *TermOrMath) (string, termType, error) {
 	var err error
 	var s string
 	var t termType
 
 	if tm.Math != nil {
-		err, s, t = cg.emitMath(tm.Math)
+		s, t, err = cg.emitMath(tm.Math)
 	} else if tm.SubMath != nil {
-		if err, s, t = cg.emitMath(tm.SubMath); err == nil {
+		if s, t, err = cg.emitMath(tm.SubMath); err == nil {
 			s = fmt.Sprintf("(%s)", s)
 		}
 	} else if tm.Term != nil {
-		err, s, t = cg.emitTerm(tm.Term)
+		s, t, err = cg.emitTerm(tm.Term)
 	}
 
-	return err, s, t
+	return s, t, err
 }
 
 // emitTerm renders t.
-func (cg *SqlCodeGenerator) emitTerm(t *Term) (error, string, termType) {
+func (cg *SqlCodeGenerator) emitTerm(t *Term) (string, termType, error) {
 	var err error
 	var s string
 	var tt termType
 
 	if t.Identifier != nil {
 		tt = identType
-		err, s = cg.applyRenderingOptions(*t.Identifier, tt)
+		s, err = cg.applyRenderingOptions(*t.Identifier, tt)
 	} else if t.Integer != nil {
 		tt = intType
-		err, s = cg.applyRenderingOptions(strconv.Itoa(*t.Integer), tt)
+		s, err = cg.applyRenderingOptions(strconv.Itoa(*t.Integer), tt)
 	} else if t.Decimal != nil {
 		tt = decimalType
-		err, s = cg.applyRenderingOptions(strconv.FormatFloat(*t.Decimal, 'f', -1, 64), tt)
+		s, err = cg.applyRenderingOptions(strconv.FormatFloat(*t.Decimal, 'f', -1, 64), tt)
 	} else if t.String != nil {
 		tt = stringType
-		err, s = cg.applyRenderingOptions(fmt.Sprintf("'%s'", *t.String), tt)
+		s, err = cg.applyRenderingOptions(fmt.Sprintf("'%s'", *t.String), tt)
 	} else if t.Date != nil {
 		tt = dateType
-		err, s = cg.applyRenderingOptions(fmt.Sprintf("'%s'", *t.Date), tt)
+		s, err = cg.applyRenderingOptions(fmt.Sprintf("'%s'", *t.Date), tt)
 	} else if t.Time != nil {
 		tt = timeType
-		err, s = cg.applyRenderingOptions(fmt.Sprintf("'%s'", *t.Time), tt)
+		s, err = cg.applyRenderingOptions(fmt.Sprintf("'%s'", *t.Time), tt)
 	} else if t.DateTime != nil {
 		tt = dateTimeType
-		err, s = cg.applyRenderingOptions(fmt.Sprintf("'%s'", strings.Replace(*t.DateTime, "T", " ", -1)), tt)
+		s, err = cg.applyRenderingOptions(fmt.Sprintf("'%s'", strings.Replace(*t.DateTime, "T", " ", -1)), tt)
 	} else if t.Bool != nil {
 		tt = boolType
 		if *t.Bool == "true" {
@@ -350,31 +350,31 @@ func (cg *SqlCodeGenerator) emitTerm(t *Term) (error, string, termType) {
 		} else {
 			s = "0"
 		}
-		err, s = cg.applyRenderingOptions(s, tt)
+		s, err = cg.applyRenderingOptions(s, tt)
 	} else if t.Macro != nil {
-		err, s, tt = cg.emitMacro(t.Macro)
+		s, tt, err = cg.emitMacro(t.Macro)
 	}
 
-	return err, s, tt
+	return s, tt, err
 }
 
 // emitMath renders m.
-func (cg *SqlCodeGenerator) emitMath(m *Math) (error, string, termType) {
-	err, t1, tt1 := cg.emitTerm(m.Term1)
+func (cg *SqlCodeGenerator) emitMath(m *Math) (string, termType, error) {
+	t1, tt1, err := cg.emitTerm(m.Term1)
 	if err != nil {
-		return err, "", undefType
+		return "", undefType, err
 	}
 
-	err, t2, tt2 := cg.emitTerm(m.Term2)
+	t2, tt2, err := cg.emitTerm(m.Term2)
 	if err != nil {
-		return err, "", undefType
+		return "", undefType, err
 	}
 
-	err, tt := cg.validateTypes(tt1, tt2)
+	tt, err := cg.validateTypes(tt1, tt2)
 	if err != nil {
-		return err, "", undefType
+		return "", undefType, err
 	} else if tt != intType && tt != decimalType && tt != dateType && tt != timeType && tt != dateTimeType {
-		return errors.Errorf("cannot compute values of type %s", cg.toTypeName(tt)), "", tt
+		return "", tt, errors.Errorf("cannot compute values of type %s", cg.toTypeName(tt))
 	}
 
 	if tt == dateType || tt == timeType || tt == dateTimeType {
@@ -408,34 +408,34 @@ func (cg *SqlCodeGenerator) emitMath(m *Math) (error, string, termType) {
 		op = "/"
 	}
 
-	return err, fmt.Sprintf("%s %s %s", t1, op, t2), tt
+	return fmt.Sprintf("%s %s %s", t1, op, t2), tt, err
 }
 
 // emitMacro renders m.
-func (cg *SqlCodeGenerator) emitMacro(m *Macro) (error, string, termType) {
+func (cg *SqlCodeGenerator) emitMacro(m *Macro) (string, termType, error) {
 	var err error
 	var s string
 	var t termType
 
 	switch m.Name {
 	case "#now":
-		err, s, t = cg.emitNowMacro(m)
+		s, t, err = cg.emitNowMacro(m)
 	case "#duration":
-		err, s, t = cg.emitDurationMacro(m)
+		s, t, err = cg.emitDurationMacro(m)
 	}
 
-	return err, s, t
+	return s, t, err
 }
 
 // emitNowMacro renders m.
-func (cg *SqlCodeGenerator) emitNowMacro(m *Macro) (error, string, termType) {
-	return nil, "CURRENT_TIMESTAMP", dateTimeType
+func (cg *SqlCodeGenerator) emitNowMacro(m *Macro) (string, termType, error) {
+	return "CURRENT_TIMESTAMP", dateTimeType, nil
 }
 
 // emitDurationMacro renders m.
-func (cg *SqlCodeGenerator) emitDurationMacro(m *Macro) (error, string, termType) {
+func (cg *SqlCodeGenerator) emitDurationMacro(m *Macro) (string, termType, error) {
 	if m.Args == nil {
-		return errors.Errorf("%s: missing parameter: iso8601 interval", m.Name), "", undefType
+		return "", undefType, errors.Errorf("%s: missing parameter: iso8601 interval", m.Name)
 	}
 
 	const interval = "INTERVAL '%s'"
@@ -444,15 +444,15 @@ func (cg *SqlCodeGenerator) emitDurationMacro(m *Macro) (error, string, termType
 	p := pluralize.NewClient()
 
 	for _, a := range m.Args {
-		err, s, t := cg.emitTerm(a)
+		s, t, err := cg.emitTerm(a)
 		if err != nil {
-			return err, "", undefType
+			return "", undefType, err
 		} else if t != stringType {
-			return errors.Errorf("iso8601 interval cannot be of type %s", cg.toTypeName(t)), "", undefType
+			return "", undefType, errors.Errorf("iso8601 interval cannot be of type %s", cg.toTypeName(t))
 		}
 		d, err := duration.FromString(s)
 		if err != nil {
-			return err, "", undefType
+			return "", undefType, err
 		}
 		if d.Years > 0 {
 			items = append(items, fmt.Sprintf(interval, p.Pluralize("YEAR", d.Years, true)))
@@ -482,12 +482,12 @@ func (cg *SqlCodeGenerator) emitDurationMacro(m *Macro) (error, string, termType
 		}
 	}
 
-	return err, sb.String(), dateTimeType
+	return sb.String(), dateTimeType, err
 }
 
 // validateTypes verifies whether or not t1 and t2 are compatible, and if they are,
 // it returns the result type of the current expression.
-func (cg *SqlCodeGenerator) validateTypes(t1 termType, t2 termType) (error, termType) {
+func (cg *SqlCodeGenerator) validateTypes(t1 termType, t2 termType) (termType, error) {
 	var err error
 	var t termType
 
@@ -501,7 +501,7 @@ func (cg *SqlCodeGenerator) validateTypes(t1 termType, t2 termType) (error, term
 		err = errors.Errorf("type %s is not compatible with type %s", cg.toTypeName(t1), cg.toTypeName(t2))
 	}
 
-	return err, t
+	return t, err
 }
 
 // toTypeName returns the name of t.
@@ -529,24 +529,24 @@ func (cg *SqlCodeGenerator) toTypeName(t termType) string {
 }
 
 // applyRenderingOptions applies the rendering options to f.
-func (cg *SqlCodeGenerator) applyRenderingOptions(f string, t termType) (error, string) {
+func (cg *SqlCodeGenerator) applyRenderingOptions(f string, t termType) (string, error) {
 	if cg.RenderingOptions != nil {
 		if t == identType {
 			if val := cg.RenderingOptions.GetFieldProps(f); val != nil {
 				if !val.Filterable {
-					return errors.Errorf("field %v is not filterable", f), ""
+					return "", errors.Errorf("field %v is not filterable", f)
 				}
 				if len(val.NativeName) > 0 {
-					return nil, val.NativeName
+					return val.NativeName, nil
 				}
 			}
 		} else if cg.RenderingOptions.NamedParamsEnabled() {
-			_, v := cg.RenderingOptions.GetNamedParamValues()
+			v, _ := cg.RenderingOptions.GetNamedParamValues()
 			paramName := fmt.Sprintf("%s%d", cg.RenderingOptions.GetNamedParamsPrefix(), len(v)+1)
 			v[paramName] = f
-			return nil, ":" + paramName
+			return ":" + paramName, nil
 		}
 	}
 
-	return nil, f
+	return f, nil
 }

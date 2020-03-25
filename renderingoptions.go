@@ -182,12 +182,12 @@ func (ro *RenderingOptions) NamedParamsEnabled() bool {
 
 // GetNamedParamValues returns a map containing the values of the named
 // parameters present in rendered code.
-func (ro *RenderingOptions) GetNamedParamValues() (error, map[string]string) {
+func (ro *RenderingOptions) GetNamedParamValues() (map[string]string, error) {
 	if !ro.namedParams.enabled {
-		return errors.New("named parameters not enabled"), nil
+		return nil, errors.New("named parameters not enabled")
 	}
 
-	return nil, ro.namedParams.values
+	return ro.namedParams.values, nil
 }
 
 // SetNamedParamsPrefix sets the string that is prepended to parameter names.

@@ -45,12 +45,14 @@ func emitSql(e string, m map[string]string, b bool) {
 	fmt.Println(w.String())
 
 	if b {
-		fmt.Println()
-		fmt.Println("Named Parameters")
-		fmt.Println("================")
-		_, values := codeGenerator.RenderingOptions.GetNamedParamValues()
-		for k, v := range values {
-			fmt.Printf("%s: %s\n", k, v)
+		values, _ := codeGenerator.RenderingOptions.GetNamedParamValues()
+		if len(values) > 0 {
+			fmt.Println()
+			fmt.Println("Named Parameters")
+			fmt.Println("================")
+			for k, v := range values {
+				fmt.Printf("%s: %s\n", k, v)
+			}
 		}
 	}
 }

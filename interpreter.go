@@ -21,5 +21,5 @@ type Interpreter interface {
 
 	// Parse parses the expressions in the specified reader and returns the
 	// resulting grammar.
-	Parse(io.Reader) (error, *Grammar)
+	Parse(io.Reader) (*Grammar, error)
 }

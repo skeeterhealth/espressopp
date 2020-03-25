@@ -150,11 +150,11 @@ func newParser() *parser {
 }
 
 // parse parses the Espresso++ expressions in r and returns the resulting grammar.
-func (p *parser) parse(r io.Reader) (error, *Grammar) {
+func (p *parser) parse(r io.Reader) (*Grammar, error) {
 	grammar := &Grammar{}
 	err := p.espressoppParser.Parse(r, grammar)
 
-	return err, grammar
+	return grammar, err
 }
 
 // string returns a string representation of g.

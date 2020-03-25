@@ -37,6 +37,6 @@ func (i *EspressoppInterpreter) Accept(cg CodeGenerator, r io.Reader, w io.Write
 }
 
 // Parse parses the expressions in r and returns the resulting grammar.
-func (i *EspressoppInterpreter) Parse(r io.Reader) (error, *Grammar) {
+func (i *EspressoppInterpreter) Parse(r io.Reader) (*Grammar, error) {
 	return i.parser.parse(r)
 }

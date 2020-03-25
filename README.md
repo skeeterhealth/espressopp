@@ -111,7 +111,7 @@ func main() {
         fmt.Println(w.String())
 
         // list named parameter values associated with the generated query
-        _, namedParamValues := codeGenerator.RenderingOptions.GetNamedParamValues()
+        namedParamValues, _ := codeGenerator.RenderingOptions.GetNamedParamValues()
         for k, v := range namedParamValues {
             fmt.Printf("%s: %s\n", k, v)
         }
