@@ -61,7 +61,7 @@ and how that functionality shall be implemented.
 [[use-case-view]]
 == Use Case View
 
-Figure <<use-case-diagram>> shows what fuctionality {espressopp} provides and what external systems
+Figure <<use-case-diagram>> shows what functionality {espressopp} provides and what external systems
 (actors) interact with it.
 
 [[use-case-diagram]]
