@@ -61,11 +61,10 @@ and how that functionality shall be implemented.
 [[use-case-view]]
 == Use Case View
 
-Figure <<use-case-diagram>> shows what functionality {espressopp} provides and what external systems
-(actors) interact with it.
+Figure <<use-case-diagram, Actors, Use Cases, and their Interactions>> shows what functionality
+{espressopp} provides and what external systems (actors) interact with it.
 
 [[use-case-diagram]]
-.Actors, Use Cases, and their Interactions
 [plantuml, format="png", id="use-case-diagram"]
 ----
 Client << Aplication >>
@@ -74,6 +73,7 @@ Client << Aplication >>
 Client -> (uc1)
 (uc1) ..> (uc2) : use
 ----
+.Actors, Use Cases, and their Interactions
 {empty} +
 
 Use case _Interpret {espressopp} Script_ is started by the _Client_ when an {espressopp} expression
@@ -85,11 +85,11 @@ which in turn generates the native query to be executed by the underlying data m
 == Logical View
 
 This section describes the logical structure of {espressopp}. The {espressopp} interpreter provides
-functionality for translating {espressopp} expressions into native queries. Figure <<key-elements>>
-shows the classes that make up {espressopp} and how they depend on each other.
+functionality for translating {espressopp} expressions into native queries. Figure
+<<key-elements, Key Structural and Behavioral Elements>> shows the classes that make up {espressopp}
+and how they depend on each other.
 
 [[key-elements]]
-.Key Structural and Behavioral Elements
 [plantuml, format="png", id="key-elements"]
 ----
 abstract class Interpreter <<interface>> {
@@ -132,6 +132,7 @@ RenderingOptions ||--|{ FieldProps
 EspressoppInterpreter o-- Parser
 Grammar --* Parser
 ----
+.Key Structural and Behavioral Elements
 {empty} +
 
 The design of {espressopp} is based on the _visitor pattern_ so that new `CodeGenerator` implementations
@@ -151,11 +152,10 @@ collaborations that actually realize it.
 
 ===== Scenario: Interpret {espressopp} Script
 
-The sequence diagram depicted in figure <<interpret-espressopp-script>> describes how an
-{espressopp} script is interpreted into a native query.
+The sequence diagram depicted in figure <<interpret-espressopp-script, Scenario Interpret {espressopp} Script>>
+describes how an {espressopp} script is interpreted into a native query.
 
 [[interpret-espressopp-script]]
-.Scenario Interpret {espressopp} Script
 [plantuml, format="png", id="interpret-espressopp-script"]
 ----
 actor Client
@@ -193,6 +193,7 @@ Client -> Writer : String()
 activate Writer
 return sql
 ----
+.Scenario Interpret {espressopp} Script
 {empty} +
 
 The `Interpreter` is initialized by the _Client_ and provides functionality for parsing {espressopp}
@@ -220,11 +221,10 @@ that make the system run and the interactions between them. {espressopp} is a mo
 into other applications. However, {espressopp} ships with a command-line utility that takes an
 {espressopp} espression as an input and returns the resulting native query.
 
-The diagram depicted in figure <<process-composition>> describes the process composition of the
-{espressopp} command-line utility and the mapping of resources on it.
+The diagram depicted in figure <<process-composition, Process Composition>> describes the process
+composition of the {espressopp} command-line utility and the mapping of resources on it.
 
 [[process-composition]]
-.Process Composition
 [plantuml, format="png", id="process-composition"]
 ----
 class espressopp <<process>> {
@@ -234,6 +234,7 @@ class espressopp <<process>> {
   writer: io.Writer
 }
 ----
+.Process Composition
 {empty} +
 
 The {espressopp} command-line utility uses the `Interpreter` and `CodeGenerator` exactly the same way
